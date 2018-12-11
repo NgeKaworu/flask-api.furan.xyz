@@ -23,7 +23,12 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-        
-    app.register_blueprint(auth.bp)
+
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
+    
+    from app import author
+    app.register_blueprint(author.bp)
 
     return app
