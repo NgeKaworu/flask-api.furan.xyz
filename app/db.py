@@ -9,7 +9,6 @@ def getRedis():
         host='localhost', port=6379, decode_responses=True, password=_password)
 
     r = redis.Redis(connection_pool=pool)
-
     return r
 
 
