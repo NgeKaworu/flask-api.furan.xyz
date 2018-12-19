@@ -7,6 +7,7 @@ def create_app():
     #注册页面
     from app import author
     app.register_blueprint(author.bp)
-
+    from app import job
+    app.register_blueprint(job.bp)
 
     return app
