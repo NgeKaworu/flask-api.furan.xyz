@@ -4,13 +4,13 @@ from app.dao import DAO
 bp = Blueprint('job', __name__, url_prefix='/job')
 
 
+cloud = DAO('jobSearch', 'cloud')
 @bp.route('/getCloud', methods=['GET'])
 def getCloud():
-    db = DAO('jobSearch', 'cloud')
-    return jsonify(db.get())
+    return jsonify(cloud.get())
 
 
+detail = DAO('jobSearch', 'detail')
 @bp.route('/getDetail', methods=['GET'])
 def getDetail():
-    db = DAO('jobSearch', 'detail')
-    return jsonify(db.get())
+    return jsonify(detail.get())
