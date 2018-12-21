@@ -1,4 +1,4 @@
-from app.db import getRedis, getMongo
+from db import getRedis, getMongo
 from bson.json_util import dumps
 
 

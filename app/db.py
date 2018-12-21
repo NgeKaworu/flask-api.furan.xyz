@@ -1,6 +1,6 @@
 import redis
 import pymongo
-from app.settings import password
+from settings import password
 
 def getRedis():
     pool = redis.ConnectionPool(

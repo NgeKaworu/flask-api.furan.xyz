@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify
-from app.dao import DAO
+from dao import DAO
 
 bp = Blueprint('author', __name__, url_prefix='/author')
 
