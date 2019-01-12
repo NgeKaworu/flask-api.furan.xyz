@@ -3,7 +3,6 @@ from bson.json_util import dumps
 
 
 class DAO(object):
-
     def __init__(self, db, collection):
         self.redisDB = getRedis()
         self.redisCol = collection
