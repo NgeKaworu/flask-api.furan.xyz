@@ -1,8 +1,6 @@
 from flask import request, Blueprint, jsonify
-from dao import DAO
 
-bp = Blueprint('author', __name__, url_prefix='/author')
-
+bp = Blueprint('todos', __name__, url_prefix='/todo/api/v1')
 
 tasks = [
     {
@@ -20,13 +18,6 @@ tasks = [
 ]
 
 
-@bp.route('/getCount', methods=['GET'])
-def getCount():
-    return jsonify(author.get())
-
-
-@bp.route('/getAbout', methods=['GET'])
-def getAbout():
-    param = request.args.get('author')
-    query = {'author': param}
-    return jsonify(about.get_one(query))
+@bp.route('/tasks', methods=['GET'])
+def get_tasks():
+    return jsonify({'tasks': tasks})
