@@ -1,7 +1,7 @@
 from flask import Flask, make_response, jsonify
 
-# from .job import job
-# from .author import author
+from .job import job
+from .author import author
 from .todo import todos
 from .db import db
 
@@ -16,8 +16,8 @@ def create_app():
         return make_response(jsonify({'error': 'Not found'}), 404)
 
     # 注册页面
-    # app.register_blueprint(author.bp)
-    # app.register_blueprint(job.bp)
+    app.register_blueprint(author.bp)
+    app.register_blueprint(job.bp)
     app.register_blueprint(todos.bp)
 
     return app
