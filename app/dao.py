@@ -1,5 +1,6 @@
 from db import getRedis, getMongo
 from bson.json_util import dumps
+from flask import abort
 
 
 class DAO(object):
@@ -25,7 +26,7 @@ class DAO(object):
                 self.redisDB.set(self.redisCol, jsonData)
                 return jsonData
             else:
-                return {'404': 'NOT FOUND'}
+                abort(404)
 
     def get_one(self, query):
         queryVal, = query.values()
@@ -40,4 +41,4 @@ class DAO(object):
                 self.redisDB.set(withQuery, jsonData)
                 return jsonData
             else:
-                return {'404': 'NOT FOUND'}
+                abort(404)

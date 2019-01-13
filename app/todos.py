@@ -1,6 +1,7 @@
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint, jsonify, abort
 
-bp = Blueprint('todos', __name__, url_prefix='/todo/api/v1')
+
+bp = Blueprint('todos', __name__, url_prefix='/todo/api/v1/tasks')
 
 tasks = [
     {
@@ -18,6 +19,15 @@ tasks = [
 ]
 
 
-@bp.route('/tasks', methods=['GET'])
+@bp.route('/', methods=['GET'])
 def get_tasks():
     return jsonify({'tasks': tasks})
+
+
+@bp.route('/<int:task_id>', methods=['GET'])
+def get_task(task_id):
+    task = list(filter(lambda t: t['id'] == task_id, tasks))
+    print(task)
+    if len(task) == 0:
+        abort(404)
+    return jsonify({'task': task[0]})
