@@ -1,21 +1,37 @@
 import redis
 import pymongo
-from flask import current_app, Flask
-
-app = Flask('MainApp')
+import click
+from flask import current_app,  g
 
 
 def getRedis():
-    with app.app_context():
+    if 'redis' not in g:
         pool = redis.ConnectionPool(
             host='localhost', port=6379, decode_responses=True, password=current_app.config['PASSWORD'])
-
-        r = redis.Redis(connection_pool=pool)
-        return r
+        g.redis = redis.Redis(connection_pool=pool)
+        return g.redis
 
 
 def getMongo():
-    with app.app_context():
-        mongoDB = pymongo.MongoClient(
+    if 'mongo' not in g:
+        g.mongo = pymongo.MongoClient(
             'localhost:27017', username='furan', password=current_app.config['PASSWORD'], connect=False)
-        return mongoDB
+        return g.mongo
+
+
+def close_db(e=None):
+    redis = g.pop('redis', None)
+    mongo = g.pop('mongo', None)
+
+    if redis is not None:
+        redis.connection_pool.disconnect()
+
+    if mongo is not None:
+        mongo.close()
+
+
+def init_app(app):
+    with app.app_context():
+        getRedis()
+        getMongo()
+    app.teardown_appcontext(close_db)

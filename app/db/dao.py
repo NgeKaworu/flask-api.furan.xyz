@@ -1,15 +1,16 @@
 from .db import getRedis, getMongo
 from bson.json_util import dumps
-from flask import abort
+from flask import abort, g
 
 
 class DAO(object):
-    def __init__(self, db, collection):
-        self.redisDB = getRedis()
-        self.redisCol = collection
-        self.mongoClient = getMongo()
-        self.mongoDB = self.mongoClient[db]
-        self.mongoCol = self.mongoDB[collection]
+    def __init__(self, app, db, collection):
+        with app.app_context():
+            self.redisDB = g.redis
+            self.redisCol = collection
+            self.mongoClient = g.mongo
+            self.mongoDB = self.mongoClient[db]
+            self.mongoCol = self.mongoDB[collection]
 
     def __del__(self):
         self.mongoClient.close()

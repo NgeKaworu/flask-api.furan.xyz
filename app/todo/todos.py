@@ -1,6 +1,5 @@
 from flask import request, Blueprint, jsonify, abort
 
-
 bp = Blueprint('todos', __name__, url_prefix='/todo/api/v1/tasks')
 
 tasks = [
