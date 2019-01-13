@@ -14,3 +14,7 @@ build/
 *.cfg
 settings.*
 configs.*
+
+
+pid.uwsgi
+log.uwsgi
