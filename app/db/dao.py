@@ -39,7 +39,6 @@ class DAO(object):
             mongoData = self.mongoCol.find_one(query)
             if mongoData:
                 jsonData = dumps(mongoData)
-                print(jsonData)
                 self.redisDB.set(withQuery, jsonData)
                 return json.loads(jsonData)
             else:

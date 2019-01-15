@@ -1,7 +1,7 @@
 from flask import request, Blueprint, jsonify, abort
 from flask_restful import Api, Resource
 
-bp = Blueprint('todos', __name__, url_prefix='/todo/api/v1/tasks')
+bp = Blueprint('todos', __name__, url_prefix='/todo/v1/tasks')
 api_todos = Api(bp)
 
 tasks = [
@@ -28,7 +28,6 @@ class Todos(Resource):
 class Todo(Resource):
     def get(self, id):
         task = list(filter(lambda t: t['id'] == id, tasks))
-        print(task)
         if len(task) == 0:
             abort(404)
         return jsonify({'task': task[0]})
