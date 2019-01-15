@@ -24,4 +24,4 @@ class JobDetail(Resource):
 
 
 api_job.add_resource(JobCloud, '/cloud', endpoint='cloud')
-api_job.add_resource(JobCloud, '/detail', endpoint='detail')
+api_job.add_resource(JobDetail, '/detail', endpoint='detail')
