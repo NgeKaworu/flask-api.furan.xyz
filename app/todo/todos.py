@@ -1,5 +1,5 @@
 from flask import request, Blueprint, jsonify, abort
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse, fields, marshal
 
 bp = Blueprint('todos', __name__, url_prefix='/todo/v1/tasks')
 api_todos = Api(bp)
@@ -19,18 +19,71 @@ tasks = [
     }
 ]
 
+task_fields = {
+    'title': fields.String,
+    'description': fields.String,
+    'done': fields.Boolean,
+    'uri': fields.Url('todos.todo')
+}
+
 
 class Todos(Resource):
+
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('title', type=str, required=True,
+                                   help='No task title provided', location='json')
+        self.reqparse.add_argument('description', type=str, default="",
+                                   location='json')
+        self.reqparse.add_argument('done', type=bool, location='json')
+
     def get(self):
-        return jsonify({'tasks': tasks})
+        return jsonify(list(map(marshal, tasks, [task_fields for i in range(len(tasks))])))
+
+    def post(self):
+        task = {}
+        args = self.reqparse.parse_args()
+        task['id'] = tasks[-1]['id']+1
+        for k, v in args.items():
+            if v != None:
+                task[k] = v
+        tasks.append(task)
+        return {'task': task}, 201
 
 
 class Todo(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('title', type=str, location='json')
+        self.reqparse.add_argument('description', type=str, location='json')
+        self.reqparse.add_argument('done', type=bool, location='json')
+
     def get(self, id):
+        task = list(filter(lambda x: x['id'] == id, tasks))
+        if len(task) == 0:
+            abort(404)
+        task = task[0]
+        return {'task': marshal(task, task_fields)}
+
+    def put(self, id):
         task = list(filter(lambda t: t['id'] == id, tasks))
         if len(task) == 0:
             abort(404)
-        return jsonify({'task': task[0]})
+        task = task[0]
+        args = self.reqparse.parse_args()
+        for k, v in args.items():
+            if v != None:
+                task[k] = v
+        # return jsonify(task=make_public_task(task))
+        return {'task': marshal(task, task_fields)}
+
+    def delete(self, id):
+        task = list(filter(lambda x: x['id'] == id, tasks))
+        if len(task) == 0:
+            abort(404)
+        task = task[0]
+        tasks.remove(task)
+        return {'result': True}
 
 
 api_todos.add_resource(Todos, '/', endpoint='todos')
