@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify, abort, make_response
+from flask import request, Blueprint, jsonify, abort
 from flask_restful import Api, Resource, reqparse, fields, marshal_with, marshal
 
 bp = Blueprint('todos', __name__, url_prefix='/todo/v1/tasks')
