@@ -1,5 +1,5 @@
-from flask import request, Blueprint, jsonify, abort
-from flask_restful import Api, Resource, reqparse, fields, marshal
+from flask import request, Blueprint, jsonify, abort, make_response
+from flask_restful import Api, Resource, reqparse, fields, marshal_with, marshal
 
 bp = Blueprint('todos', __name__, url_prefix='/todo/v1/tasks')
 api_todos = Api(bp)
@@ -37,9 +37,11 @@ class Todos(Resource):
                                    location='json')
         self.reqparse.add_argument('done', type=bool, location='json')
 
+    @marshal_with(task_fields)
     def get(self):
-        return jsonify(list(map(marshal, tasks, [task_fields for i in range(len(tasks))])))
+        return tasks
 
+    @marshal_with(task_fields)
     def post(self):
         task = {}
         args = self.reqparse.parse_args()
@@ -48,7 +50,7 @@ class Todos(Resource):
             if v != None:
                 task[k] = v
         tasks.append(task)
-        return {'task': task}, 201
+        return task, 201
 
 
 class Todo(Resource):
@@ -58,13 +60,15 @@ class Todo(Resource):
         self.reqparse.add_argument('description', type=str, location='json')
         self.reqparse.add_argument('done', type=bool, location='json')
 
+    @marshal_with(task_fields)
     def get(self, id):
         task = list(filter(lambda x: x['id'] == id, tasks))
         if len(task) == 0:
             abort(404)
         task = task[0]
-        return {'task': marshal(task, task_fields)}
+        return task
 
+    @marshal_with(task_fields)
     def put(self, id):
         task = list(filter(lambda t: t['id'] == id, tasks))
         if len(task) == 0:
@@ -74,8 +78,7 @@ class Todo(Resource):
         for k, v in args.items():
             if v != None:
                 task[k] = v
-        # return jsonify(task=make_public_task(task))
-        return {'task': marshal(task, task_fields)}
+        return task
 
     def delete(self, id):
         task = list(filter(lambda x: x['id'] == id, tasks))
