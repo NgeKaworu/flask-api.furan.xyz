@@ -1,11 +1,13 @@
 from flask import Flask, make_response, jsonify
+# 数据库
+from .db import db
 
 from .job import job
 from .author import author
 from .todo import todos
-from .db import db
 from .users import users
 from .users import register
+from .users import login
 # from .auth import auth
 
 
@@ -25,5 +27,6 @@ def create_app():
     app.register_blueprint(todos.bp)
     app.register_blueprint(users.bp)
     app.register_blueprint(register.bp)
+    app.register_blueprint(login.bp)
 
     return app

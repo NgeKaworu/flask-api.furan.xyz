@@ -16,11 +16,11 @@ class MongoDAO():
     def find(self):
         result = [i for i in self.mongoCol.find()]
         # 解析成string bson => string
-        return dumps(result)
+        return dumps(result) if result else result
 
-    def findOne(self, query):
-        result = self.mongoCol.find_one(query)
-        return dumps(result)
+    def findOne(self, query, projection=None):
+        result = self.mongoCol.find_one(query, projection)
+        return dumps(result) if result else result
 
     def update(self, query, update):
         result = self.mongoCol.update(query, {'$set': update})
@@ -68,14 +68,14 @@ class DAO(MongoDAO, RedisDAO):
 
     def get_one(self, query):
         queryVal, = query.values()
-        query = self.redisCol + queryVal
-        redisCache = RedisDAO.get(self, query)
+        withQuery = self.redisCol + queryVal
+        redisCache = RedisDAO.get(self, withQuery)
         if redisCache:
             return json.loads(redisCache)
         else:
             mongoData = MongoDAO.findOne(self, query)
             if mongoData:
-                self.redisDB.set(query, mongoData)
+                self.redisDB.set(withQuery, mongoData)
                 return json.loads(mongoData)
             else:
                 abort(404)

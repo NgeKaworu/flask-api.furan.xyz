@@ -24,7 +24,7 @@ def register():
     # 唯一字段
     uniqueField = ['uid', 'email']
     for i in uniqueField:
-        if db.findOne({i: parse[i]}) != 'null':
+        if db.findOne({i: parse[i]}):
             return make_response(jsonify({
                 "message": i + " is existed"
             }), 302)
