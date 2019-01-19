@@ -22,7 +22,7 @@ class User(Resource):
     def get(self, uid):
         query = {'uid': uid}
         data = self.db.findOne(query)
-        if data != 'null':
+        if data:
             return json.loads(data)
         abort(404)
 
