@@ -67,7 +67,6 @@ class DAO(MongoDAO, RedisDAO):
                 abort(404)
 
     def get_one(self, query):
-        print(query)
         queryVal, = query.values()
         query = self.redisCol + queryVal
         redisCache = RedisDAO.get(self, query)
