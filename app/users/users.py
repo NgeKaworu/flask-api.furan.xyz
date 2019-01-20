@@ -1,8 +1,8 @@
 import json
-from flask import jsonify, request, Blueprint, abort, make_response
+from flask import jsonify, request, Blueprint, abort, make_response, current_app
 from flask_restful import Api, Resource, reqparse, fields, marshal, marshal_with
 from .usersDao import UsersDAO
-# from app.auth import Auth
+from app.auth.auth import Auth
 
 bp = Blueprint('users', __name__, url_prefix='/user/v1')
 user_api = Api(bp)
@@ -17,11 +17,14 @@ class User(Resource):
     def __init__(self):
         self.db = UsersDAO()
         self.reqparse = reqparse.RequestParser()
+        self.auth = Auth(current_app)
 
     @marshal_with(user_fields)
     def get(self, uid):
         query = {'uid': uid}
         data = self.db.findOne(query)
+        tokon = self.auth.encode_auth_token(uid, 123)
+        print(tokon)
         if data:
             return json.loads(data)
         abort(404)
