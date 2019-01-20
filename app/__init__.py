@@ -8,14 +8,12 @@ from .todo import todos
 from .users import users
 from .users import register
 from .users import login
-# from .auth import auth
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile('configs.py')
     db.init_app(app)
-    # auth.init_app(app)
 
     @app.errorhandler(404)
     def not_found(error):
