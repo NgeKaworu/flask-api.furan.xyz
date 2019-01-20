@@ -5,9 +5,6 @@ from flask import jsonify, current_app, request
 
 
 class Auth():
-    def __init__(self, app=None):
-        self.app = app
-        
     @staticmethod
     def encode_auth_token(user_id, login_time):
         """

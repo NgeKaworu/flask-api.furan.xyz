@@ -13,17 +13,18 @@ user_fields = {
     'uri': fields.Url('users.user')
 }
 
+auth = Auth()
+
 class User(Resource):
     def __init__(self):
         self.db = UsersDAO()
         self.reqparse = reqparse.RequestParser()
-        self.auth = Auth(current_app)
 
     @marshal_with(user_fields)
     def get(self, uid):
         query = {'uid': uid}
         data = self.db.findOne(query)
-        tokon = self.auth.encode_auth_token(uid, 123)
+        tokon = auth.encode_auth_token(uid, 123)
         print(tokon)
         if data:
             return json.loads(data)

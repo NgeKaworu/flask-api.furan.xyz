@@ -1,6 +1,4 @@
 from flask import Flask, make_response, jsonify
-# 数据库
-from .db import db
 
 from .job import job
 from .author import author
@@ -13,7 +11,6 @@ from .users import login
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_pyfile('configs.py')
-    db.init_app(app)
 
     @app.errorhandler(404)
     def not_found(error):
