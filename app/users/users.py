@@ -15,7 +15,10 @@ user_fields = {
 
 auth = Auth()
 
+
 class User(Resource):
+    decorators = [auth.test_decorator]
+
     def __init__(self):
         self.db = UsersDAO()
         self.reqparse = reqparse.RequestParser()
@@ -24,8 +27,6 @@ class User(Resource):
     def get(self, uid):
         query = {'uid': uid}
         data = self.db.findOne(query)
-        tokon = auth.encode_auth_token(uid, 123)
-        print(tokon)
         if data:
             return json.loads(data)
         abort(404)

@@ -1,10 +1,14 @@
 import jwt
 import datetime
 import time
+from functools import wraps
 from flask import jsonify, current_app, request
 
 
 class Auth():
+    def __init__(self, app=None):
+        self.app = app
+
     @staticmethod
     def encode_auth_token(user_id, login_time):
         """
@@ -15,7 +19,7 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=10),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=60),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'ken',
                 'data': {
@@ -31,25 +35,40 @@ class Auth():
         except Exception as e:
             return e
 
-    # @staticmethod
-    # def decode_auth_token(auth_token):
-    #     """
-    #     验证Token
-    #     :param auth_token:
-    #     :return: integer|string
-    #     """
-    #     try:
-    #         # payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'), leeway=datetime.timedelta(seconds=10))
-    #         # 取消过期时间验证
-    #         payload = jwt.decode(auth_token, config.SECRET_KEY, options={'verify_exp': False})
-    #         if ('data' in payload and 'id' in payload['data']):
-    #             return payload
-    #         else:
-    #             raise jwt.InvalidTokenError
-    #     except jwt.ExpiredSignatureError:
-    #         return 'Token过期'
-    #     except jwt.InvalidTokenError:
-    #         return '无效Token'
+    def test_decorator(self, func):
+        app = self.app or current_app
+
+        @wraps(func)
+        def decorator(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            result = self.decode_auth_token(token)
+            print(token, result)
+            print(request, args, kwargs)
+            ret = func(*args, **kwargs)
+
+            return ret
+        return decorator
+
+    @staticmethod
+    def decode_auth_token(auth_token):
+        """
+        验证Token
+        :param auth_token:
+        :return: integer|string
+        """
+        try:
+            # payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'), leeway=datetime.timedelta(seconds=10))
+            # 取消过期时间验证
+            payload = jwt.decode(auth_token, current_app.config['SECRET_KEY'], options={
+                                 'verify_exp': False})
+            if ('data' in payload and 'id' in payload['data']):
+                return payload
+            else:
+                raise jwt.InvalidTokenError
+        except jwt.ExpiredSignatureError:
+            return 'Token过期'
+        except jwt.InvalidTokenError:
+            return '无效Token'
 
     # def authenticate(self, username, password):
     #     """
