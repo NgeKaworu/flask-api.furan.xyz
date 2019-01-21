@@ -2,7 +2,7 @@ import jwt
 import datetime
 import time
 from functools import wraps
-from flask import jsonify, current_app, request
+from flask import jsonify, current_app, request, make_response
 
 
 class Auth():
@@ -19,7 +19,7 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=60),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=2),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'ken',
                 'data': {
@@ -35,20 +35,6 @@ class Auth():
         except Exception as e:
             return e
 
-    def test_decorator(self, func):
-        app = self.app or current_app
-
-        @wraps(func)
-        def decorator(*args, **kwargs):
-            token = request.headers.get('Authorization')
-            result = self.decode_auth_token(token)
-            print(token, result)
-            print(request, args, kwargs)
-            ret = func(*args, **kwargs)
-
-            return ret
-        return decorator
-
     @staticmethod
     def decode_auth_token(auth_token):
         """
@@ -57,10 +43,11 @@ class Auth():
         :return: integer|string
         """
         try:
-            # payload = jwt.decode(auth_token, app.config.get('SECRET_KEY'), leeway=datetime.timedelta(seconds=10))
+            # 增加10秒验证余地
+            # payload = jwt.decode(auth_token, current_app.config['SECRET_KEY'], leeway=datetime.timedelta(seconds=10))
             # 取消过期时间验证
-            payload = jwt.decode(auth_token, current_app.config['SECRET_KEY'], options={
-                                 'verify_exp': False})
+            # payload = jwt.decode(auth_token, current_app.config['SECRET_KEY'], options={'verify_exp': False})
+            payload = jwt.decode(auth_token, current_app.config['SECRET_KEY'])
             if ('data' in payload and 'id' in payload['data']):
                 return payload
             else:
@@ -70,49 +57,24 @@ class Auth():
         except jwt.InvalidTokenError:
             return '无效Token'
 
-    # def authenticate(self, username, password):
-    #     """
-    #     用户登录，登录成功返回token，写将登录时间写入数据库；登录失败返回失败原因
-    #     :param password:
-    #     :return: json
-    #     """
-    #     userInfo = Users.query.filter_by(username=username).first()
-    #     if (userInfo is None):
-    #         return jsonify(common.falseReturn('', '找不到用户'))
-    #     else:
-    #         if (Users.check_password(Users, userInfo.password, password)):
-    #             login_time = int(time.time())
-    #             userInfo.login_time = login_time
-    #             Users.update(Users)
-    #             token = self.encode_auth_token(userInfo.id, login_time)
-    #             return jsonify(common.trueReturn(token.decode(), '登录成功'))
-    #         else:
-    #             return jsonify(common.falseReturn('', '密码不正确'))
-
-    # def identify(self, request):
-    #     """
-    #     用户鉴权
-    #     :return: list
-    #     """
-    #     auth_header = request.headers.get('Authorization')
-    #     if (auth_header):
-    #         auth_tokenArr = auth_header.split(" ")
-    #         if (not auth_tokenArr or auth_tokenArr[0] != 'JWT' or len(auth_tokenArr) != 2):
-    #             result = common.falseReturn('', '请传递正确的验证头信息')
-    #         else:
-    #             auth_token = auth_tokenArr[1]
-    #             payload = self.decode_auth_token(auth_token)
-    #             if not isinstance(payload, str):
-    #                 user = Users.get(Users, payload['data']['id'])
-    #                 if (user is None):
-    #                     result = common.falseReturn('', '找不到该用户信息')
-    #                 else:
-    #                     if (user.login_time == payload['data']['login_time']):
-    #                         result = common.trueReturn(user.id, '请求成功')
-    #                     else:
-    #                         result = common.falseReturn('', 'Token已更改，请重新登录获取')
-    #             else:
-    #                 result = common.falseReturn('', payload)
-    #     else:
-    #         result = common.falseReturn('', '没有提供认证token')
-    #     return result
+    def identify(self, func):
+        @wraps(func)
+        def decorator(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            if not token:
+                return make_response(jsonify({
+                    "error": "need token"
+                }), 401)
+            result = self.decode_auth_token(token)
+            if isinstance(result, str):
+                return make_response(jsonify({
+                    "error": result
+                }), 401)
+            if result["data"]['id'] == kwargs['uid']:
+                ret = func(*args, **kwargs)
+                return ret
+            else:
+                return make_response(jsonify({
+                    "error": "permission denied"
+                }), 401)
+        return decorator

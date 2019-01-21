@@ -17,7 +17,7 @@ auth = Auth()
 
 
 class User(Resource):
-    decorators = [auth.test_decorator]
+    decorators = [auth.identify]
 
     def __init__(self):
         self.db = UsersDAO()
