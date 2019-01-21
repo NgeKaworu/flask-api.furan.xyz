@@ -14,9 +14,3 @@ def getMongo():
     mongodb = pymongo.MongoClient(
         'localhost:27017', username='furan', password=current_app.config['PASSWORD'], connect=False)
     return mongodb
-
-
-def init_app(app):
-    with app.app_context():
-        getRedis()
-        getMongo()
