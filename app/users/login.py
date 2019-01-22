@@ -43,8 +43,8 @@ def login():
     }), 400)
 
 
-# @bp.route('/logout/<string:uid>', methods=['POST'])
-@Auth.identify
+@bp.route('/logout/<string:uid>', methods=['GET'])
+@auth.identify
 def logout(uid):
     """
     用户退出
