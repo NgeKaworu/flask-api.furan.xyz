@@ -15,7 +15,6 @@ user_fields = {
 
 auth = Auth()
 
-
 class User(Resource):
     decorators = [auth.identify]
 

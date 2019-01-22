@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, abort, make_response
+from flask import jsonify, request, Blueprint, abort, make_response, current_app
 from werkzeug.security import check_password_hash
 from .usersDao import UsersDAO
 import json
@@ -6,11 +6,10 @@ import time
 from app.auth.auth import Auth
 
 
-bp = Blueprint('login', __name__, url_prefix='/login')
+bp = Blueprint('login', __name__)
 auth = Auth()
 
-
-@bp.route('/', methods=['POST'])
+@bp.route('/login', methods=['POST'])
 def login():
     """
     用户登录
@@ -30,7 +29,9 @@ def login():
     # 验证
     if check_password_hash(result['pwd'], parse['pwd']):
         login_time = time.time()
-        db.update({'email': parse['email']}, {"login_time": login_time})
+        logout_time = time.time() + 7200
+        db.update({'email': parse['email']}, {
+                  "login_time": login_time, "logout_time": logout_time})
         token = auth.encode_auth_token(result['uid'], login_time).decode()
         return make_response(jsonify({
             "message": "succeed",
@@ -40,3 +41,18 @@ def login():
     return make_response(jsonify({
         "error": "email or pwd not match"
     }), 400)
+
+
+# @bp.route('/logout/<string:uid>', methods=['POST'])
+@Auth.identify
+def logout(uid):
+    """
+    用户退出
+    :return: json
+    """
+    db = UsersDAO()
+    logout_time = time.time()
+    db.update({'uid': uid}, {"logout_time": logout_time})
+    return make_response(jsonify({
+        "message": "succeed"
+    }), 200)
