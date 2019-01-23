@@ -16,7 +16,7 @@ user_fields = {
 auth = Auth()
 
 class User(Resource):
-    decorators = [auth.identify("get_only", someting="123")]
+    decorators = [auth.identify("GET_ONLY", "OWNER_ONLY", someting="123")]
 
     def __init__(self):
         self.db = UsersDAO()

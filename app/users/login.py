@@ -44,7 +44,7 @@ def login():
 
 
 @bp.route('/logout/<string:uid>', methods=['GET'])
-@auth.identify
+@auth.identify("OWNER_ONLY")
 def logout(uid):
     """
     用户退出
