@@ -60,26 +60,35 @@ class Auth():
         except jwt.InvalidTokenError:
             return '无效Token'
 
+    @staticmethod
+    def get_resource_owner(dao, query):
+        return dao.findOne(query, {"o"})
+
     def identify(self, *paramas, **options):
-        print(paramas, options) 
+        print(paramas, options)
+
         def wrapper(func):
             @wraps(func)
             def decorator(*args, **kwargs):
-                db=UsersDAO()
-                token=request.headers.get('Authorization')
+                if 'get_only' in paramas and request.method == 'GET':
+                    return func(*args, **kwargs)
+                print(args, kwargs)
+                db = UsersDAO()
+                token = request.headers.get('Authorization')
                 print(request.blueprint, request.method, request)
                 if not token:
                     return make_response(jsonify({
                         "error": "need login"
                     }), 401)
-                result=self.decode_auth_token(token)
+                result = self.decode_auth_token(token)
                 if isinstance(result, str):
                     return make_response(jsonify({
                         "error": result
                     }), 401)
-                user_info=json.loads(db.findOne({"uid": result["data"]['id']}))
-                if result["data"]['id'] == kwargs['uid'] and user_info['logout_time'] > time.time():
-                    ret=func(*args, **kwargs)
+                user_info = json.loads(db.findOne(
+                    {"uid": result["data"]['id']}))
+                if user_info['logout_time'] > time.time():
+                    ret = func(*args, **kwargs)
                     return ret
                 else:
                     return make_response(jsonify({

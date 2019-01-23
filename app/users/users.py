@@ -10,13 +10,13 @@ user_api = Api(bp)
 user_fields = {
     'uid': fields.String,
     'email': fields.String,
-    'uri': fields.Url('users.user')
+    'uri': fields.Url('users.users')
 }
 
 auth = Auth()
 
 class User(Resource):
-    decorators = [auth.identify("2233", someting="123")]
+    decorators = [auth.identify("get_only", someting="123")]
 
     def __init__(self):
         self.db = UsersDAO()
