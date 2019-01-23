@@ -9,6 +9,7 @@ from app.auth.auth import Auth
 bp = Blueprint('login', __name__)
 auth = Auth()
 
+
 @bp.route('/login', methods=['POST'])
 def login():
     """
@@ -44,7 +45,7 @@ def login():
 
 
 @bp.route('/logout/<string:uid>', methods=['GET'])
-@auth.identify("OWNER_ONLY")
+@auth.identify("OWNER_ONLY", resource=UsersDAO)
 def logout(uid):
     """
     用户退出

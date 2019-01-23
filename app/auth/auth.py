@@ -66,11 +66,13 @@ class Auth():
 
     def identify(self, *paramas, **options):
         print(paramas, options)
-
         def wrapper(func):
             @wraps(func)
             def decorator(*args, **kwargs):
-                if 'get_only' in paramas and request.method == 'GET':
+                resourcedb = options['resource']()
+                # print(resourcedb.find())
+                print(resourcedb.findOne({'uid': 'furan'}))
+                if 'GET_ONLY' in paramas and request.method == 'GET':
                     return func(*args, **kwargs)
                 print(args, kwargs)
                 db = UsersDAO()
