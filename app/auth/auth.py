@@ -5,6 +5,7 @@ import json
 from functools import wraps
 from flask import jsonify, current_app, request, make_response
 from app.users.usersDao import UsersDAO
+from .role import Role
 
 
 class Auth():
@@ -59,26 +60,30 @@ class Auth():
         except jwt.InvalidTokenError:
             return '无效Token'
 
-    def identify(self, func):
-        @wraps(func)
-        def decorator(*args, **kwargs):
-            db = UsersDAO()
-            token = request.headers.get('Authorization')
-            if not token:
-                return make_response(jsonify({
-                    "error": "need token"
-                }), 401)
-            result = self.decode_auth_token(token)
-            if isinstance(result, str):
-                return make_response(jsonify({
-                    "error": result
-                }), 401)
-            user_info = json.loads(db.findOne({"uid": result["data"]['id']}))
-            if result["data"]['id'] == kwargs['uid'] and user_info['logout_time'] > time.time():
-                ret = func(*args, **kwargs)
-                return ret
-            else:
-                return make_response(jsonify({
-                    "error": "permission denied"
-                }), 401)
-        return decorator
+    def identify(self, *paramas, **options):
+        print(paramas, options) 
+        def wrapper(func):
+            @wraps(func)
+            def decorator(*args, **kwargs):
+                db=UsersDAO()
+                token=request.headers.get('Authorization')
+                print(request.blueprint, request.method, request)
+                if not token:
+                    return make_response(jsonify({
+                        "error": "need login"
+                    }), 401)
+                result=self.decode_auth_token(token)
+                if isinstance(result, str):
+                    return make_response(jsonify({
+                        "error": result
+                    }), 401)
+                user_info=json.loads(db.findOne({"uid": result["data"]['id']}))
+                if result["data"]['id'] == kwargs['uid'] and user_info['logout_time'] > time.time():
+                    ret=func(*args, **kwargs)
+                    return ret
+                else:
+                    return make_response(jsonify({
+                        "error": "permission denied"
+                    }), 401)
+            return decorator
+        return wrapper

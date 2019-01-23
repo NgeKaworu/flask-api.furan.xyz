@@ -16,7 +16,7 @@ user_fields = {
 auth = Auth()
 
 class User(Resource):
-    decorators = [auth.identify]
+    decorators = [auth.identify("2233", someting="123")]
 
     def __init__(self):
         self.db = UsersDAO()
@@ -50,4 +50,4 @@ class User(Resource):
         return abort(404)
 
 
-user_api.add_resource(User, '/<string:uid>', endpoint='user')
+user_api.add_resource(User, '/<string:uid>', endpoint='users')
