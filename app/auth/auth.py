@@ -64,13 +64,9 @@ class Auth():
         def wrapper(func):
             @wraps(func)
             def decorator(*args, **kwargs):
-                print(paramas, options)
-                print(args, kwargs)
-                print(request.blueprint, request.method, request)
                 resource = options['resource']()
                 method = request.method
                 blueprint = request.blueprint
-                print(Policy[blueprint][method])
                 if Policy[blueprint][method] == 'all':
                     return func(*args, **kwargs)
                 token = request.headers.get('Authorization')
