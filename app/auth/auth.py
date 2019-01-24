@@ -5,7 +5,7 @@ import json
 from functools import wraps
 from flask import jsonify, current_app, request, make_response
 from app.users.usersDao import UsersDAO
-from .role import Role
+from .policy import Policy
 
 
 class Auth():
@@ -60,24 +60,20 @@ class Auth():
         except jwt.InvalidTokenError:
             return '无效Token'
 
-    @staticmethod
-    def get_resource_owner(dao, query):
-        return dao.findOne(query, {"o"})
-
     def identify(self, *paramas, **options):
-        print(paramas, options)
         def wrapper(func):
             @wraps(func)
             def decorator(*args, **kwargs):
-                resourcedb = options['resource']()
-                # print(resourcedb.find())
-                print(resourcedb.findOne({'uid': 'furan'}))
-                if 'GET_ONLY' in paramas and request.method == 'GET':
-                    return func(*args, **kwargs)
+                print(paramas, options)
                 print(args, kwargs)
-                db = UsersDAO()
-                token = request.headers.get('Authorization')
                 print(request.blueprint, request.method, request)
+                resource = options['resource']()
+                method = request.method
+                blueprint = request.blueprint
+                print(Policy[blueprint][method])
+                if Policy[blueprint][method] == 'all':
+                    return func(*args, **kwargs)
+                token = request.headers.get('Authorization')
                 if not token:
                     return make_response(jsonify({
                         "error": "need login"
@@ -87,14 +83,23 @@ class Auth():
                     return make_response(jsonify({
                         "error": result
                     }), 401)
+                db = UsersDAO()
                 user_info = json.loads(db.findOne(
                     {"uid": result["data"]['id']}))
                 if user_info['logout_time'] > time.time():
-                    ret = func(*args, **kwargs)
-                    return ret
+                    if 'role' in user_info and user_info['role'] == 'admin':
+                        return func(*args, **kwargs)
+                    if Policy[blueprint][method] == 'owner':
+                        result = json.loads(resource.findOne(kwargs))
+                        if 'owner' in result and result['owner'] == user_info['uid']:
+                            return func(*args, **kwargs)
+                        return make_response(jsonify({
+                            "error": "permission denied"
+                        }), 401)
+                    return func(*args, **kwargs)
                 else:
                     return make_response(jsonify({
-                        "error": "permission denied"
+                        "error": "time out please login again"
                     }), 401)
             return decorator
         return wrapper
