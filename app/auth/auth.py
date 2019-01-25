@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 from functools import wraps
-from flask import jsonify, current_app, request, make_response
+from flask import jsonify, current_app, request, make_response, g
 from app.users.usersDao import UsersDAO
 from .policy import Policy
 
@@ -24,7 +24,7 @@ class Auth():
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=2),
                 'iat': datetime.datetime.utcnow(),
-                'iss': 'ken',
+                'iss': 'sys',
                 'data': {
                     'id': user_id,
                     'login_time': login_time
@@ -74,20 +74,21 @@ class Auth():
                     return make_response(jsonify({
                         "error": "need login"
                     }), 401)
-                result = self.decode_auth_token(token)
-                if isinstance(result, str):
+                token_info = self.decode_auth_token(token)
+                if isinstance(token_info, str):
                     return make_response(jsonify({
-                        "error": result
+                        "error": token_info
                     }), 401)
+                g.token_info = token_info
                 db = UsersDAO()
                 user_info = json.loads(db.findOne(
-                    {"uid": result["data"]['id']}))
+                    {"uid": token_info["data"]['id']}))
                 if user_info['logout_time'] > time.time():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
                     if Policy[blueprint][method] == 'owner':
-                        result = json.loads(resource.findOne(kwargs))
-                        if 'owner' in result and result['owner'] == user_info['uid']:
+                        resource_info = json.loads(resource.findOne(kwargs))
+                        if 'owner' in resource_info and resource_info['owner'] == user_info['uid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({
                             "error": "permission denied"
