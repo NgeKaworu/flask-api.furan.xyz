@@ -12,7 +12,7 @@ def allowed_file(filename):
                filename)[-1][1:] in current_app.config['ALLOWED_EXTENSIONS']
 
 
-@bp.route('/upload/<filename>')
+@bp.route('/<filename>')
 def uploaded_file(filename):
     return send_from_directory(current_app.config['UPLOAD_FOLDER'],
                                filename)
