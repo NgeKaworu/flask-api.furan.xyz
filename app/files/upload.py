@@ -24,11 +24,14 @@ def upload_file():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         uuname = str(uuid.uuid4())
+        ext = os.path.splitext(filename)[-1]
+        fillname = uuname + ext
         file.save(os.path.join(
-            current_app.config['UPLOAD_FOLDER'], uuname))
-        file_url = url_for('files.uploaded_file', filename=uuname)
+            current_app.config['UPLOAD_FOLDER'], fillname))
+        file_url = url_for('files.uploaded_file', filename=fillname)
         return jsonify({
-            'msg': file_url
+            'msg': 'OK',
+            'url': file_url
         })
     return jsonify({
         'error': 'bad type'
