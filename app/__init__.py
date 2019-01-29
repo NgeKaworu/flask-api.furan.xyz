@@ -6,6 +6,7 @@ from .todo import todos
 from .users import users
 from .users import register
 from .users import login
+from .files import upload
 
 
 def create_app():
@@ -23,5 +24,6 @@ def create_app():
     app.register_blueprint(users.bp)
     app.register_blueprint(register.bp)
     app.register_blueprint(login.bp)
+    app.register_blueprint(upload.bp)
 
     return app
