@@ -4,6 +4,7 @@ import time
 import json
 from functools import wraps
 from flask import jsonify, current_app, request, make_response, g
+from bson.objectid import ObjectId
 from app.users.usersDao import UsersDAO
 from .policy import Policy
 
@@ -82,13 +83,16 @@ class Auth():
                 g.token_info = token_info
                 db = UsersDAO()
                 user_info = json.loads(db.findOne(
-                    {"uid": token_info["data"]['id']}))
+                    {"_id": ObjectId(token_info["data"]['id'])}
+                ))
                 if user_info['logout_time'] > time.time():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
                     if Policy[blueprint][method] == 'owner':
                         resource_info = json.loads(resource.findOne(kwargs))
-                        if 'owner' in resource_info and resource_info['owner'] == user_info['uid']:
+                        if resource_info['_id']['$oid'] == user_info['_id']['$oid']:
+                            return func(*args, **kwargs)
+                        if 'owner' in resource_info and resource_info['owner'] == ['_id']['$oid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({
                             "error": "permission denied"

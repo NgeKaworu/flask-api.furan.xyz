@@ -26,14 +26,14 @@ def login():
             }), 400)
 
     result = json.loads(db.findOne(
-        {'email': parse['email']}, {'uid': 1, 'pwd': 1, '_id': 0}))
+        {'email': parse['email']}, {'uid': 1, 'pwd': 1, '_id': 1}))
     # 验证
     if check_password_hash(result['pwd'], parse['pwd']):
         login_time = time.time()
         logout_time = time.time() + 7200
         db.update({'email': parse['email']}, {
                   "login_time": login_time, "logout_time": logout_time})
-        token = auth.encode_auth_token(result['uid'], login_time).decode()
+        token = auth.encode_auth_token(result['_id']['$oid'], login_time).decode()
         return make_response(jsonify({
             "message": "succeed",
             "token": token
