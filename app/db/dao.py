@@ -13,8 +13,11 @@ class MongoDAO():
     def __del__(self):
         self.mongoClient.close()
 
-    def find(self):
-        result = [i for i in self.mongoCol.find()]
+    def find(self, limit=None, page=None):
+        if limit and page:
+            result = [i for i in self.mongoCol.find().skip(page).limit(limit)]
+        else:
+            result = [i for i in self.mongoCol.find()]
         # 解析成string bson => string
         return dumps(result) if result else result
 
@@ -54,12 +57,12 @@ class DAO(MongoDAO, RedisDAO):
         RedisDAO.__init__(self, collection)
 
     # 先读redis, redis没有就读mongo并且写入redis, 都没有就返回404
-    def get(self):
+    def get(self, *arg, **kwarg):
         redisCache = RedisDAO.get(self, self.redisCol)
         if redisCache:
             return json.loads(redisCache)
         else:
-            mongoData = MongoDAO.find(self)
+            mongoData = MongoDAO.find(self, *arg, **kwarg)
             if mongoData:
                 self.redisDB.set(self.redisCol, mongoData)
                 return json.loads(mongoData)
