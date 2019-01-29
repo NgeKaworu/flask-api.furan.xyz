@@ -92,7 +92,7 @@ class Auth():
                         resource_info = json.loads(resource.findOne(kwargs))
                         if resource_info['_id']['$oid'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
-                        if 'owner' in resource_info and resource_info['owner'] == ['_id']['$oid']:
+                        if 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({
                             "error": "permission denied"
