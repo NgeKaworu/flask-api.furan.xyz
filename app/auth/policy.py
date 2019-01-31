@@ -16,5 +16,9 @@ Policy = {
     "login":{
         'POST': 'all',
         'GET': 'owner'
+    },
+    "files":{
+        'POST': 'user',
+        'GET': 'all'
     }
 }
