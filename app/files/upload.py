@@ -2,8 +2,11 @@ import uuid
 import os
 from flask import Flask, request, url_for, send_from_directory, current_app, jsonify, Blueprint
 from werkzeug.utils import secure_filename
+from flask_restful import Api, Resource, reqparse, fields, marshal_with, marshal
+from .filesDao import FilesDAO
 
 bp = Blueprint('files', __name__, url_prefix='/files/v1')
+api_files = Api(bp)
 
 
 def allowed_file(filename):
@@ -12,14 +15,9 @@ def allowed_file(filename):
                filename)[-1][1:] in current_app.config['ALLOWED_EXTENSIONS']
 
 
-@bp.route('/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(current_app.config['UPLOAD_FOLDER'],
-                               filename)
-
-
 @bp.route('/upload', methods=['POST'])
 def upload_file():
+    db = FilesDAO()
     file = request.files['file']
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -28,7 +26,13 @@ def upload_file():
         fillname = uuname + ext
         file.save(os.path.join(
             current_app.config['UPLOAD_FOLDER'], fillname))
-        file_url = url_for('files.uploaded_file', filename=fillname)
+        file_url = url_for('files.file', filename=fillname)
+        db.insert({
+            'filename': filename,
+            'path': fillname,
+            'type': ext[1:],
+            # 'owner': g.token_info["data"]['id']
+        })
         return jsonify({
             'msg': 'OK',
             'url': file_url
@@ -36,3 +40,12 @@ def upload_file():
     return jsonify({
         'error': 'bad type'
     })
+
+
+class File(Resource):
+    def get(self, filename):
+        return send_from_directory(current_app.config['UPLOAD_FOLDER'],
+                                   filename)
+
+
+api_files.add_resource(File, '/<string:filename>', endpoint='file')
