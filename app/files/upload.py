@@ -20,16 +20,16 @@ def upload_file():
     db = FilesDAO()
     file = request.files['file']
     if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
+        name = secure_filename(file.filename)
         uuname = str(uuid.uuid4())
-        ext = os.path.splitext(filename)[-1]
-        fillname = uuname + ext
+        ext = os.path.splitext(name)[-1]
+        path = uuname + ext
         file.save(os.path.join(
-            current_app.config['UPLOAD_FOLDER'], fillname))
-        file_url = url_for('files.file', filename=fillname)
+            current_app.config['UPLOAD_FOLDER'], path))
+        file_url = url_for('files.file', filename=path)
         db.insert({
-            'filename': filename,
-            'path': fillname,
+            'name': name,
+            'path': path,
             'type': ext[1:],
             # 'owner': g.token_info["data"]['id']
         })
