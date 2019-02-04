@@ -1,22 +1,12 @@
 import json
 from flask import jsonify, request, Blueprint, abort, make_response, current_app, url_for
-from flask_restful import Api, Resource, reqparse, fields, marshal, marshal_with
+from flask_restful import Api, Resource, reqparse
 from .articleDao import ArticleDAO
 from app.auth.auth import Auth
 from bson.objectid import ObjectId
 
 bp = Blueprint('article', __name__, url_prefix='/article/v1')
 article_api = Api(bp)
-
-
-article_fields = {
-    '_id': fields.String,
-    'content': fields.String,
-    'title': fields.String,
-    'upload': fields.String,
-    'uri': fields.Url('article.article')
-}
-
 
 auth = Auth()
 
@@ -31,16 +21,14 @@ class Articles(Resource):
         self.reqparse.add_argument(
             'content', type=str, required=True, help="is required", location='json')
         self.reqparse.add_argument(
-            'upload', type=str, help="is required", location='json')
+            'fileList', type=list, help="is required", location='json')
 
-    # @marshal_with(article_fields)
     # def get(self):
     #     return tasks
 
     def post(self):
         db = ArticleDAO()
-        result = json.loads((db.insert(self.reqparse.parse_args())))
-        print(result)
+        result = json.loads(db.insert(self.reqparse.parse_args()))
         if result:
             repson = {'article_id': result['$oid']}
         return repson, 201
@@ -53,28 +41,26 @@ class Article(Resource):
         self.db = ArticleDAO()
         self.reqparse = reqparse.RequestParser()
 
-    @marshal_with(article_fields)
     def get(self, article_id):
         query = {'_id': ObjectId(article_id)}
         data = self.db.findOne(query)
-        print(data)
         if data:
+            article_url = url_for('article.article', article_id=article_id)
             result = json.loads(data)
             result['article_id'] = article_id
+            result['url'] = article_url
             return result
         abort(404)
 
     def put(self, article_id):
         self.reqparse.add_argument(
-            'a_id', type=str, required=True, help="is required", location='json')
-        self.reqparse.add_argument(
             'title', type=str, required=True, help="is required", location='json')
         self.reqparse.add_argument(
             'content', type=str, required=True, help="is required", location='json')
         self.reqparse.add_argument(
-            'upload', type=str, help="is required", location='json')
+            'fileList', type=list, help="is required", location='json')
 
-        query = {"article_id": article_id}
+        query = {'_id': ObjectId(article_id)}
         update = self.reqparse.parse_args()
         result = self.db.update(query, update)
         if result['n']:
