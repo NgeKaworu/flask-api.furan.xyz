@@ -8,16 +8,20 @@ Policy = {
         'PUT': "owner",
         'DELETE': "owner"
     },
+    'articles': {
+        'GET': "all",
+        'POST': "user"
+    },
     "users": {
         'GET': "all",
         'PUT': "owner",
         'DELETE': "owner"
     },
-    "login":{
+    "login": {
         'POST': 'all',
         'GET': 'owner'
     },
-    "files":{
+    "files": {
         'POST': 'user',
         'GET': 'all'
     }
