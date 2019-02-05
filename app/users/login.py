@@ -5,6 +5,8 @@ import json
 import time
 from app.auth.auth import Auth
 
+from bson.objectid import ObjectId
+
 
 bp = Blueprint('login', __name__)
 auth = Auth()
@@ -60,7 +62,7 @@ def logout(uid):
     """
     db = UsersDAO()
     logout_time = time.time()
-    db.update({'uid': uid}, {"logout_time": logout_time})
+    db.update({'_id': ObjectId(uid)}, {"logout_time": logout_time})
     return make_response(jsonify({
         "message": "succeed"
     }), 200)
