@@ -68,7 +68,7 @@ class Article(Resource):
         return abort(404)
 
     def delete(self, article_id):
-        query = {'article_id': article_id}
+        query = {'_id': ObjectId(article_id)}
         result = self.db.remove(query)
         if result['n']:
             return make_response(jsonify({'deleted': article_id}), 202)

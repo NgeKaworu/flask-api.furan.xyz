@@ -14,7 +14,7 @@ def register():
     db = UsersDAO()
     parse = request.json.copy()
     # 验证关键字
-    requiredQuery = ['uid', 'pwd', 'email']
+    requiredQuery = ['nickname', 'pwd', 'email']
     for i in requiredQuery:
         if i not in parse:
             return make_response(jsonify({
@@ -22,7 +22,7 @@ def register():
             }), 400)
 
     # 唯一字段
-    uniqueField = ['uid', 'email']
+    uniqueField = ['email']
     for i in uniqueField:
         if db.findOne({i: parse[i]}):
             return make_response(jsonify({
