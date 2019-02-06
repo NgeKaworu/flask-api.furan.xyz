@@ -1,8 +1,8 @@
 import uuid
 import os
-from flask import Flask, request, url_for, send_from_directory, current_app, jsonify, Blueprint
+from flask import Flask, request, url_for, send_from_directory, current_app, jsonify, Blueprint, g
 from werkzeug.utils import secure_filename
-from flask_restful import Api, Resource, reqparse, fields, marshal_with, marshal
+from flask_restful import Api, Resource
 from .filesDao import FilesDAO
 
 bp = Blueprint('files', __name__, url_prefix='/files/v1')
@@ -31,7 +31,7 @@ def upload_file():
             'name': name,
             'path': path,
             'type': ext[1:],
-            # 'owner': g.token_info["data"]['id']
+            'owner': g.token_info["data"]['id']
         })
         return jsonify({
             'msg': 'OK',

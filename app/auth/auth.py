@@ -81,9 +81,9 @@ class Auth():
                     }), 401)
                 g.token_info = token_info
                 db = UsersDAO()
-                user_info = json.loads(db.findOne(
+                user_info = db.findOne(
                     {"_id": ObjectId(token_info["data"]['id'])}
-                ))
+                )
                 if user_info['logout_time'] > time.time():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
@@ -97,12 +97,7 @@ class Auth():
 
                         resource = options['resource']()
                         resource_info = resource.findOne(kwargs)
-                        if resource_info == None:
-                            return make_response(jsonify({
-                                "error": "permission denied"
-                            }), 401)
-                        resource_info = json.loads(resource_info)
-                        if 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
+                        if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({
                             "error": "permission denied"

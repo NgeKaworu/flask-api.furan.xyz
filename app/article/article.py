@@ -28,7 +28,8 @@ class Articles(Resource):
         result = self.db.find(limit=10, page=page-1, projection={
                               'title': 1, '_id': 1, 'content': 1, 'owner': 1})
         if result:
-            result = json.loads(result)
+            # total = result.count()
+            # 过滤 以及截取内容
             reps = [{**i, '_id': i['_id']['$oid'],
                      'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result]
             return reps
@@ -53,10 +54,9 @@ class Article(Resource):
 
     def get(self, article_id):
         query = {'_id': ObjectId(article_id)}
-        data = self.db.findOne(query)
+        result = self.db.findOne(query)
         if data:
             article_url = url_for('article.article', article_id=article_id)
-            result = json.loads(data)
             result['article_id'] = article_id
             result['url'] = article_url
             return result
