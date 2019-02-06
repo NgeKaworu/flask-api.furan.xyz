@@ -25,13 +25,13 @@ class Articles(Resource):
             'fileList', type=list, help="is required", location='json')
 
     def get(self, page=1):
-        result = self.db.find(limit=10, page=page-1, projection={
-                              'title': 1, '_id': 1, 'content': 1, 'owner': 1})
+        result, count = self.db.find(limit=10, page=page-1, projection={
+            'title': 1, '_id': 1, 'content': 1, 'owner': 1})
         if result:
             # total = result.count()
             # 过滤 以及截取内容
-            reps = [{**i, '_id': i['_id']['$oid'],
-                     'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result]
+            reps = {'list': [{**i, '_id': i['_id']['$oid'],
+                              'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result], 'total': count}
             return reps
         abort(404)
 
@@ -55,7 +55,7 @@ class Article(Resource):
     def get(self, article_id):
         query = {'_id': ObjectId(article_id)}
         result = self.db.findOne(query)
-        if data:
+        if result:
             article_url = url_for('article.article', article_id=article_id)
             result['article_id'] = article_id
             result['url'] = article_url

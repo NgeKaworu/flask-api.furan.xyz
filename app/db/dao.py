@@ -80,5 +80,5 @@ class DAO(MongoDAO, RedisDAO):
             if mongoData:
                 self.redisDB.set(withQuery, json.dumps(mongoData))
                 return mongoData
-        else:
-            abort(404)
+            else:
+                abort(404)
