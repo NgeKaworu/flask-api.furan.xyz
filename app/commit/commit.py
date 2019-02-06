@@ -28,7 +28,7 @@ class Commit(Resource):
         query = {'commit_id': commit_id}
         data = self.db.findOne(query)
         if data:
-            return json.loads(data)
+            return data
         abort(404)
 
     def put(self, commit_id):

@@ -1,4 +1,3 @@
-import json
 from flask import jsonify, request, Blueprint, abort, make_response, current_app, url_for, g
 from flask_restful import Api, Resource, reqparse
 from .articleDao import ArticleDAO
@@ -38,8 +37,7 @@ class Articles(Resource):
     def post(self):
         db = ArticleDAO()
         owner = g.token_info['data']['id']
-        result = json.loads(
-            db.insert({**self.reqparse.parse_args(), "owner": owner}))
+        db.insert({**self.reqparse.parse_args(), "owner": owner})
         if result:
             repson = {'article_id': result['$oid']}
         return repson, 201

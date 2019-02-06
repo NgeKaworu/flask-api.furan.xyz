@@ -29,10 +29,10 @@ def login():
 
     result = db.findOne(
         {'email': parse['email']}, {'nickname': 1, 'pwd': 1, '_id': 1})
+
     if result == None:
         abort(404)
 
-    result = json.loads(result)
     # 验证
     if check_password_hash(result['pwd'], parse['pwd']):
         login_time = time.time()

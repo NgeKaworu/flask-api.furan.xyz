@@ -35,7 +35,7 @@ class MongoDAO():
 
     def insert(self, query):
         result = self.mongoCol.insert(query)
-        return dumps(result) if result else result
+        return json.loads(dumps(result)) if result else result
 
 
 class RedisDAO():

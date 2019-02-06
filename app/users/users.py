@@ -28,7 +28,7 @@ class User(Resource):
         query = {'uid': uid}
         data = self.db.findOne(query)
         if data:
-            return json.loads(data)
+            return data
         abort(404)
 
     def put(self, uid):
