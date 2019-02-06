@@ -6,7 +6,8 @@ Policy = {
     'article': {
         'GET': "all",
         'PUT': "owner",
-        'DELETE': "owner"
+        'DELETE': "owner",
+        'POST': 'user'
     },
     'articles': {
         'GET': "all",

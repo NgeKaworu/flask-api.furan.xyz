@@ -1,5 +1,5 @@
 import json
-from flask import jsonify, request, Blueprint, abort, make_response, current_app, url_for
+from flask import jsonify, request, Blueprint, abort, make_response, current_app, url_for, g
 from flask_restful import Api, Resource, reqparse
 from .articleDao import ArticleDAO
 from app.auth.auth import Auth
@@ -12,7 +12,7 @@ auth = Auth()
 
 
 class Articles(Resource):
-    # decorators = [auth.identify(resource=ArticleDAO)]
+    decorators = [auth.identify(resource=ArticleDAO)]
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
@@ -28,14 +28,16 @@ class Articles(Resource):
 
     def post(self):
         db = ArticleDAO()
-        result = json.loads(db.insert(self.reqparse.parse_args()))
+        owner = g.token_info['data']['id']
+        result = json.loads(
+            db.insert({**self.reqparse.parse_args(), "owner": owner}))
         if result:
             repson = {'article_id': result['$oid']}
         return repson, 201
 
 
 class Article(Resource):
-    # decorators = [auth.identify(resource=ArticleDAO)]
+    decorators = [auth.identify(resource=ArticleDAO)]
 
     def __init__(self):
         self.db = ArticleDAO()
