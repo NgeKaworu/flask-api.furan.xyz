@@ -13,11 +13,13 @@ class MongoDAO():
     def __del__(self):
         self.mongoClient.close()
 
-    def find(self, limit=None, page=None):
+    def find(self, limit=None, page=None, projection=None):
         if limit and page:
-            result = [i for i in self.mongoCol.find().skip(page).limit(limit)]
+            skip = page * limit
+            result = [i for i in self.mongoCol.find(
+                {}, projection).skip(skip).limit(limit)]
         else:
-            result = [i for i in self.mongoCol.find()]
+            result = [i for i in self.mongoCol.find({}, projection)]
         # 解析成string bson => string
         return dumps(result) if result else result
 

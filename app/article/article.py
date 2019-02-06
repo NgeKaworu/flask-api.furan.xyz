@@ -15,6 +15,7 @@ class Articles(Resource):
     decorators = [auth.identify(resource=ArticleDAO)]
 
     def __init__(self):
+        self.db = ArticleDAO()
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
             'title', type=str, required=True, help="is required", location='json')
@@ -23,8 +24,15 @@ class Articles(Resource):
         self.reqparse.add_argument(
             'fileList', type=list, help="is required", location='json')
 
-    # def get(self):
-    #     return tasks
+    def get(self, page=1):
+        result = self.db.find(limit=10, page=page-1, projection={
+                              'title': 1, '_id': 1, 'content': 1, 'owner': 1})
+        if result:
+            result = json.loads(result)
+            reps = [{**i, '_id': i['_id']['$oid'],
+                     'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result]
+            return reps
+        abort(404)
 
     def post(self):
         db = ArticleDAO()
@@ -77,5 +85,5 @@ class Article(Resource):
         return abort(404)
 
 
-article_api.add_resource(Articles, '/', endpoint='articles')
+article_api.add_resource(Articles, '/', '/<int:page>', endpoint='articles')
 article_api.add_resource(Article, '/<string:article_id>', endpoint='article')

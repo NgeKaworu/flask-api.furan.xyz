@@ -65,7 +65,6 @@ class Auth():
         def wrapper(func):
             @wraps(func)
             def decorator(*args, **kwargs):
-                resource = options['resource']()
                 method = request.method
                 blueprint = request.blueprint
                 if Policy[blueprint][method] == 'all':
@@ -95,6 +94,9 @@ class Auth():
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
+
+                        resource = options['resource']()
+                        resource_info = resource.findOne(kwargs)
                         if resource_info == None:
                             return make_response(jsonify({
                                 "error": "permission denied"
