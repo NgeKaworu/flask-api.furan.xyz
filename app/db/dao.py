@@ -13,19 +13,17 @@ class MongoDAO():
     def __del__(self):
         self.mongoClient.close()
 
-    def find(self, limit=None, page=None, projection=None):
-        if limit and page:
-            skip = page * limit
-            result = [i for i in self.mongoCol.find(
-                {}, projection).skip(skip).limit(limit)]
-        else:
-            result = [i for i in self.mongoCol.find({}, projection)]
-        # 解析成string bson => string
-        return dumps(result) if result else result
+    def find(self, limit=0, page=0, projection=None, with_count=False):
+        skip = page * limit
+        cursor = self.mongoCol.find({}, projection).skip(skip).limit(limit)
+        count = cursor.count()
+        result = [i for i in cursor]
+        # 解析成 json bson => string => json
+        return json.loads(dumps(result)), count if result else result
 
     def findOne(self, query, projection=None):
         result = self.mongoCol.find_one(query, projection)
-        return dumps(result) if result else result
+        return json.loads(dumps(result)) if result else result
 
     def update(self, query, update):
         result = self.mongoCol.update(query, {'$set': update})
@@ -64,10 +62,10 @@ class DAO(MongoDAO, RedisDAO):
         if redisCache:
             return json.loads(redisCache)
         else:
-            mongoData = MongoDAO.find(self, *arg, **kwarg)
+            mongoData, count = MongoDAO.find(self, *arg, **kwarg)
             if mongoData:
-                self.redisDB.set(self.redisCol, mongoData)
-                return json.loads(mongoData)
+                self.redisDB.set(self.redisCol, json.dumps(mongoData))
+                return mongoData
             else:
                 abort(404)
 
@@ -80,7 +78,7 @@ class DAO(MongoDAO, RedisDAO):
         else:
             mongoData = MongoDAO.findOne(self, query)
             if mongoData:
-                self.redisDB.set(withQuery, mongoData)
-                return json.loads(mongoData)
-            else:
-                abort(404)
+                self.redisDB.set(withQuery, json.dumps(mongoData))
+                return mongoData
+        else:
+            abort(404)
