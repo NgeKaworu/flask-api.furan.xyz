@@ -88,15 +88,18 @@ class Auth():
                 if user_info['logout_time'] > time.time():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
+                    if Policy[blueprint][method] == 'admin':
+                        return make_response(jsonify({
+                            "error": "permission denied admin only"
+                        }), 401)
                     if Policy[blueprint][method] == 'owner':
-                        resource_info = resource.findOne(kwargs)
+                        if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
+                            return func(*args, **kwargs)
                         if resource_info == None:
                             return make_response(jsonify({
                                 "error": "permission denied"
                             }), 401)
                         resource_info = json.loads(resource_info)
-                        if resource_info['_id']['$oid'] == user_info['_id']['$oid']:
-                            return func(*args, **kwargs)
                         if 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({

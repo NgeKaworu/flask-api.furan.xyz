@@ -7,11 +7,11 @@ Policy = {
         'GET': "all",
         'PUT': "owner",
         'DELETE': "owner",
-        'POST': 'user'
+        'POST': 'admin'
     },
     'articles': {
         'GET': "all",
-        'POST': "user"
+        'POST': "admin"
     },
     "users": {
         'GET': "all",
@@ -23,7 +23,7 @@ Policy = {
         'GET': 'owner'
     },
     "files": {
-        'POST': 'user',
+        'POST': 'admin',
         'GET': 'all'
     }
 }
