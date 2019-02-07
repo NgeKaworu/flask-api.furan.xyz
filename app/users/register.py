@@ -18,7 +18,7 @@ def register():
     for i in requiredQuery:
         if i not in parse:
             return make_response(jsonify({
-                "message": i + " is required."
+                "message": i + " 不能为空"
             }), 400)
 
     # 唯一字段
@@ -26,7 +26,7 @@ def register():
     for i in uniqueField:
         if db.findOne({i: parse[i]}):
             return make_response(jsonify({
-                "message": i + " is existed"
+                "message": i + " 已经存在"
             }), 302)
 
     # 加盐
@@ -37,5 +37,5 @@ def register():
         return make_response(jsonify({"message": "succeed"}), 201)
 
     return make_response(jsonify({
-        "message": "unknow error"
+        "message": "未知错误"
     }), 400)

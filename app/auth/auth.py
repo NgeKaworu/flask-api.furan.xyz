@@ -72,7 +72,7 @@ class Auth():
                 token = request.headers.get('Authorization')
                 if not token:
                     return make_response(jsonify({
-                        "message": "need login"
+                        "message": "需要登录"
                     }), 401)
                 token_info = self.decode_auth_token(token)
                 if isinstance(token_info, str):
@@ -89,7 +89,7 @@ class Auth():
                         return func(*args, **kwargs)
                     if Policy[blueprint][method] == 'admin':
                         return make_response(jsonify({
-                            "message": "permission denied admin only"
+                            "message": "只有管理员可以使用"
                         }), 401)
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
@@ -100,12 +100,12 @@ class Auth():
                         if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
                         return make_response(jsonify({
-                            "message": "permission denied"
+                            "message": "权限不足"
                         }), 401)
                     return func(*args, **kwargs)
                 else:
                     return make_response(jsonify({
-                        "message": "time out please login again"
+                        "message": "登陆超时, 请重新登陆"
                     }), 401)
             return decorator
         return wrapper
