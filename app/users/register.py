@@ -18,7 +18,7 @@ def register():
     for i in requiredQuery:
         if i not in parse:
             return make_response(jsonify({
-                "error": i + " is required."
+                "message": i + " is required."
             }), 400)
 
     # 唯一字段
@@ -36,4 +36,6 @@ def register():
     if result:
         return make_response(jsonify({"message": "succeed"}), 201)
 
-    abort(400)
+    return make_response(jsonify({
+        "message": "unknow error"
+    }), 400)

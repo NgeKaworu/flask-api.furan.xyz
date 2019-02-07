@@ -24,7 +24,7 @@ def login():
     for i in requiredQuery:
         if i not in parse:
             return make_response(jsonify({
-                "error": i + " is required."
+                "message": i + " is required."
             }), 400)
 
     result = db.findOne(
@@ -49,7 +49,7 @@ def login():
         }), 200)
 
     return make_response(jsonify({
-        "error": "email or pwd not match"
+        "message": "email or pwd not match"
     }), 400)
 
 
