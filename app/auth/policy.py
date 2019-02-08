@@ -24,6 +24,7 @@ Policy = {
     },
     "files": {
         'POST': 'admin',
-        'GET': 'all'
+        'GET': 'all',
+        'DELETE': 'admin'
     }
 }

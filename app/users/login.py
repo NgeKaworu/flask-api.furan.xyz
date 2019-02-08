@@ -41,16 +41,16 @@ def login():
                   "login_time": login_time, "logout_time": logout_time})
         token = auth.encode_auth_token(
             result['_id']['$oid'], login_time).decode()
-        return make_response(jsonify({
+        return jsonify({
             "message": "succeed",
             "token": token,
             "uid": result['_id']['$oid'],
             "name": result['nickname']
-        }), 200)
+        })
 
-    return make_response(jsonify({
+    return {
         "message": "用户名或密码不匹配"
-    }), 400)
+    }, 400
 
 
 @bp.route('/logout/<string:uid>', methods=['GET'])
@@ -63,6 +63,6 @@ def logout(uid):
     db = UsersDAO()
     logout_time = time.time()
     db.update({'_id': ObjectId(uid)}, {"logout_time": logout_time})
-    return make_response(jsonify({
+    return {
         "message": "succeed"
-    }), 200)
+    }, 200

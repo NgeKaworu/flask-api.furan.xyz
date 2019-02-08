@@ -1,4 +1,4 @@
-from flask import Flask, make_response, jsonify
+from flask import Flask
 
 from .job import job
 from .author import author

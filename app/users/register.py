@@ -34,8 +34,6 @@ def register():
 
     result = db.insert(parse)
     if result:
-        return make_response(jsonify({"message": "succeed"}), 201)
+        return {"message": "succeed"}, 201
 
-    return make_response(jsonify({
-        "message": "未知错误"
-    }), 400)
+    return {"message": "未知错误"}, 400

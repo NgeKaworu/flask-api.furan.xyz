@@ -71,9 +71,9 @@ class Auth():
                     return func(*args, **kwargs)
                 token = request.headers.get('Authorization')
                 if not token:
-                    return make_response(jsonify({
+                    return{
                         "message": "需要登录"
-                    }), 401)
+                    }, 401
                 token_info = self.decode_auth_token(token)
                 if isinstance(token_info, str):
                     return make_response(jsonify({
@@ -88,9 +88,9 @@ class Auth():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
                     if Policy[blueprint][method] == 'admin':
-                        return make_response(jsonify({
+                        return {
                             "message": "只有管理员可以使用"
-                        }), 401)
+                        }, 401
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
@@ -99,13 +99,13 @@ class Auth():
                         resource_info = resource.findOne(kwargs)
                         if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
-                        return make_response(jsonify({
+                        return {
                             "message": "权限不足"
-                        }), 401)
+                        }, 401
                     return func(*args, **kwargs)
                 else:
-                    return make_response(jsonify({
+                    return {
                         "message": "登陆超时, 请重新登陆"
-                    }), 401)
+                    }, 401
             return decorator
         return wrapper

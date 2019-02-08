@@ -1,12 +1,16 @@
 import uuid
 import os
-from flask import Flask, request, url_for, send_from_directory, current_app, jsonify, Blueprint, g
+from flask import Flask, request, url_for, send_from_directory, current_app, Blueprint, g, jsonify
 from werkzeug.utils import secure_filename
 from flask_restful import Api, Resource
+
 from .filesDao import FilesDAO
+from app.auth.auth import Auth
 
 bp = Blueprint('files', __name__, url_prefix='/files/v1')
 api_files = Api(bp)
+
+auth = Auth()
 
 
 def allowed_file(filename):
@@ -16,6 +20,7 @@ def allowed_file(filename):
 
 
 @bp.route('/upload', methods=['POST'])
+@auth.identify(resource=FilesDAO)
 def upload_file():
     db = FilesDAO()
     file = request.files['file']
@@ -27,25 +32,33 @@ def upload_file():
         file.save(os.path.join(
             current_app.config['UPLOAD_FOLDER'], path))
         file_url = url_for('files.file', filename=path)
-        db.insert({
+        result = db.insert({
             'name': name,
             'path': path,
             'type': ext[1:],
             'owner': g.token_info["data"]['id']
         })
         return jsonify({
-            'msg': 'OK',
-            'url': file_url
+            'message': 'OK',
+            'url': file_url,
+            'f_id': result['$oid']
         })
-    return jsonify({
-        'error': 'bad type'
-    })
+    return {
+        'message': 'bad type'
+    }, 406
 
 
 class File(Resource):
+    decorators = [auth.identify(resource=FilesDAO)]
+
     def get(self, filename):
         return send_from_directory(current_app.config['UPLOAD_FOLDER'],
                                    filename)
 
+    def delete(self, filename):
+        return {
+            'message': 'bad type'
+        }, 406
 
-api_files.add_resource(File, '/<string:filename>', endpoint='file')
+
+api_files.add_resource(File, '/<string:filename>', endpoint = 'file')
