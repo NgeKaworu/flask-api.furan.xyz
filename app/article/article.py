@@ -50,13 +50,16 @@ class Article(Resource):
         self.reqparse = reqparse.RequestParser()
 
     def get(self, article_id):
-        query = {'_id': ObjectId(article_id)}
-        result = self.db.findOne(query)
-        if result:
-            article_url = url_for('article.article', article_id=article_id)
-            result['article_id'] = article_id
-            result['url'] = article_url
-            return result
+        try:
+            query = {'_id': ObjectId(article_id)}
+            result = self.db.findOne(query)
+            if result:
+                article_url = url_for('article.article', article_id=article_id)
+                result['article_id'] = article_id
+                result['url'] = article_url
+                return result
+        except:
+            abort(404)
         abort(404)
 
     def put(self, article_id):
