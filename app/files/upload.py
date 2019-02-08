@@ -3,6 +3,7 @@ import os
 from flask import Flask, request, url_for, send_from_directory, current_app, Blueprint, g, jsonify
 from werkzeug.utils import secure_filename
 from flask_restful import Api, Resource
+from bson.objectid import ObjectId
 
 from .filesDao import FilesDAO
 from app.auth.auth import Auth
@@ -51,14 +52,28 @@ def upload_file():
 class File(Resource):
     decorators = [auth.identify(resource=FilesDAO)]
 
+    def __init__(self):
+        self.db = FilesDAO()
+
     def get(self, filename):
         return send_from_directory(current_app.config['UPLOAD_FOLDER'],
                                    filename)
 
     def delete(self, filename):
+        try:
+            findPath = self.db.findOne({'_id': ObjectId(filename)})
+            path = os.path.join(
+                current_app.config['UPLOAD_FOLDER'], findPath['path'])
+            os.remove(path)
+            self.db.remove({'_id': ObjectId(filename)})
+            return {
+                'message': 'ok'
+            }, 200
+        except Exception as e:
+            print(e)
         return {
             'message': 'bad type'
         }, 406
 
 
-api_files.add_resource(File, '/<string:filename>', endpoint = 'file')
+api_files.add_resource(File, '/<string:filename>', endpoint='file')
