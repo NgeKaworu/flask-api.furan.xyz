@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 from functools import wraps
-from flask import jsonify, current_app, request, make_response, g
+from flask import jsonify, current_app, request, g
 from bson.objectid import ObjectId
 from app.users.usersDao import UsersDAO
 from .policy import Policy
@@ -67,18 +67,20 @@ class Auth():
             def decorator(*args, **kwargs):
                 method = request.method
                 blueprint = request.blueprint
+
                 if Policy[blueprint][method] == 'all':
                     return func(*args, **kwargs)
+
                 token = request.headers.get('Authorization')
+
                 if not token:
-                    return{
-                        "message": "需要登录"
-                    }, 401
+                    return jsonify({"message": "需要登录"}), 401
+
                 token_info = self.decode_auth_token(token)
+
                 if isinstance(token_info, str):
-                    return make_response(jsonify({
-                        "message": token_info
-                    }), 401)
+                    return jsonify({"message": token_info}), 401
+
                 g.token_info = token_info
                 db = UsersDAO()
                 user_info = db.findOne(
@@ -87,25 +89,25 @@ class Auth():
                 if user_info['logout_time'] > time.time():
                     if 'role' in user_info and user_info['role'] == 'admin':
                         return func(*args, **kwargs)
+
                     if Policy[blueprint][method] == 'admin':
-                        return {
-                            "message": "只有管理员可以使用"
-                        }, 401
+                        return jsonify({"message": "只有管理员可以使用"}), 401
+
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
 
                         resource = options['resource']()
                         resource_info = resource.findOne(kwargs)
+
                         if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
-                        return {
-                            "message": "权限不足"
-                        }, 401
+
+                        return jsonify({"message": "权限不足"}), 401
+                        
                     return func(*args, **kwargs)
                 else:
-                    return {
-                        "message": "登陆超时, 请重新登陆"
-                    }, 401
+                    return jsonify({"message": "登陆超时, 请重新登陆"}), 401
+                    
             return decorator
         return wrapper

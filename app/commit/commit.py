@@ -1,5 +1,5 @@
 import json
-from flask import jsonify, request, Blueprint, abort, make_response, current_app
+from flask import jsonify, request, Blueprint, abort, current_app
 from flask_restful import Api, Resource, reqparse, fields, marshal, marshal_with
 from .commitDao import CommitDAO
 from app.auth.auth import Auth
@@ -27,8 +27,10 @@ class Commit(Resource):
     def get(self, commit_id):
         query = {'commit_id': commit_id}
         data = self.db.findOne(query)
+
         if data:
-            return data
+            return jsonify(data)
+
         abort(404)
 
     def put(self, commit_id):
@@ -39,15 +41,19 @@ class Commit(Resource):
         query = {"commit_id": commit_id}
         update = self.reqparse.parse_args()
         result = self.db.update(query, update)
+
         if result['n']:
-            return make_response(jsonify({'update': commit_id}), 202)
+            return jsonify({'update': commit_id}, 202)
+
         return abort(404)
 
     def delete(self, commit_id):
         query = {'commit_id': commit_id}
         result = self.db.remove(query)
+
         if result['n']:
-            return make_response(jsonify({'deleted': commit_id}), 202)
+            return jsonify({'deleted': commit_id}, 202)
+
         return abort(404)
 
 

@@ -44,9 +44,7 @@ def upload_file():
             'url': file_url,
             'f_id': result['$oid']
         })
-    return {
-        'message': 'bad type'
-    }, 406
+    return jsonify({'message': 'bad type'}), 406
 
 
 class File(Resource):
@@ -66,14 +64,13 @@ class File(Resource):
                 current_app.config['UPLOAD_FOLDER'], findPath['path'])
             os.remove(path)
             self.db.remove({'_id': ObjectId(filename)})
-            return {
-                'message': 'ok'
-            }, 200
+
+            return jsonify({'message': 'ok'}), 200
+
         except Exception as e:
             print(e)
-        return {
-            'message': 'bad type'
-        }, 406
+
+        return jsonify({'message': 'bad type'}), 406
 
 
 api_files.add_resource(File, '/<string:filename>', endpoint='file')

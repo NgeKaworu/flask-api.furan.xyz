@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, abort, make_response, current_app
+from flask import jsonify, request, Blueprint, abort, current_app
 from werkzeug.security import check_password_hash
 from .usersDao import UsersDAO
 import json
@@ -23,9 +23,7 @@ def login():
     requiredQuery = ['pwd', 'email']
     for i in requiredQuery:
         if i not in parse:
-            return make_response(jsonify({
-                "message": i + " 不能为空"
-            }), 400)
+            return jsonify({"message": i + " 不能为空"}), 400
 
     result = db.findOne(
         {'email': parse['email']}, {'nickname': 1, 'pwd': 1, '_id': 1})
@@ -63,6 +61,4 @@ def logout(uid):
     db = UsersDAO()
     logout_time = time.time()
     db.update({'_id': ObjectId(uid)}, {"logout_time": logout_time})
-    return {
-        "message": "succeed"
-    }, 200
+    return jsonify({'message': 'succeed'}), 200
