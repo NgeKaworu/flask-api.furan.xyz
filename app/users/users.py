@@ -10,14 +10,14 @@ user_api = Api(bp)
 user_fields = {
     'uid': fields.String,
     'email': fields.String,
-    'uri': fields.Url('users.user')
+    'uri': fields.Url('users.users')
 }
 
 auth = Auth()
 
 
 class User(Resource):
-    decorators = [auth.identify]
+    decorators = [auth.identify(resource=UsersDAO)]
 
     def __init__(self):
         self.db = UsersDAO()
@@ -28,7 +28,7 @@ class User(Resource):
         query = {'uid': uid}
         data = self.db.findOne(query)
         if data:
-            return json.loads(data)
+            return data
         abort(404)
 
     def put(self, uid):
@@ -51,4 +51,4 @@ class User(Resource):
         return abort(404)
 
 
-user_api.add_resource(User, '/<string:uid>', endpoint='user')
+user_api.add_resource(User, '/<string:uid>', endpoint='users')

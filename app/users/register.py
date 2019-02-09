@@ -14,19 +14,19 @@ def register():
     db = UsersDAO()
     parse = request.json.copy()
     # 验证关键字
-    requiredQuery = ['uid', 'pwd', 'email']
+    requiredQuery = ['nickname', 'pwd', 'email']
     for i in requiredQuery:
         if i not in parse:
             return make_response(jsonify({
-                "error": i + " is required."
+                "message": i + " 不能为空"
             }), 400)
 
     # 唯一字段
-    uniqueField = ['uid', 'email']
+    uniqueField = ['email']
     for i in uniqueField:
         if db.findOne({i: parse[i]}):
             return make_response(jsonify({
-                "message": i + " is existed"
+                "message": i + " 已经存在"
             }), 302)
 
     # 加盐
@@ -34,6 +34,6 @@ def register():
 
     result = db.insert(parse)
     if result:
-        return make_response(jsonify({"message": "succeed"}), 201)
+        return {"message": "succeed"}, 201
 
-    abort(400)
+    return {"message": "未知错误"}, 400

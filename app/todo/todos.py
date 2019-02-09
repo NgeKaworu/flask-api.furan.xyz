@@ -39,7 +39,7 @@ class Todos(Resource):
 
     @marshal_with(task_fields)
     def get(self):
-        return tasks
+        return jsonify(tasks)
 
     @marshal_with(task_fields)
     def post(self):
@@ -50,7 +50,7 @@ class Todos(Resource):
             if v != None:
                 task[k] = v
         tasks.append(task)
-        return task, 201
+        return jsonify(task), 201
 
 
 class Todo(Resource):
@@ -66,7 +66,7 @@ class Todo(Resource):
         if len(task) == 0:
             abort(404)
         task = task[0]
-        return task
+        return jsonify(task)
 
     @marshal_with(task_fields)
     def put(self, id):
@@ -78,7 +78,7 @@ class Todo(Resource):
         for k, v in args.items():
             if v != None:
                 task[k] = v
-        return task
+        return jsonify(task)
 
     def delete(self, id):
         task = list(filter(lambda x: x['id'] == id, tasks))
@@ -86,7 +86,7 @@ class Todo(Resource):
             abort(404)
         task = task[0]
         tasks.remove(task)
-        return {'result': True}
+        return jsonify({'result': True})
 
 
 api_todos.add_resource(Todos, '/', endpoint='todos')
