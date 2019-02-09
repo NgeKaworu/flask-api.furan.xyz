@@ -1,5 +1,5 @@
 import json
-from flask import jsonify, request, Blueprint, abort, make_response, current_app
+from flask import request, Blueprint, abort, current_app
 from flask_restful import Api, Resource, reqparse, fields, marshal, marshal_with
 from .usersDao import UsersDAO
 from app.auth.auth import Auth
@@ -40,15 +40,15 @@ class User(Resource):
         update = self.reqparse.parse_args()
         result = self.db.update(query, update)
         if result['n']:
-            return make_response(jsonify({'update': uid}), 202)
+            return {'update': uid}, 202
         return abort(404)
 
     def delete(self, uid):
         query = {'uid': uid}
         result = self.db.remove(query)
         if result['n']:
-            return make_response(jsonify({'deleted': uid}), 202)
+            return {'deleted': uid}, 202
         return abort(404)
 
 
-user_api.add_resource(User, '/<string:uid>', endpoint='users')
+user_api.add_resource(User, '/<string:uid>', endpoint = 'users')
