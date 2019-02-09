@@ -17,7 +17,7 @@ def register():
     requiredQuery = ['nickname', 'pwd', 'email']
     for i in requiredQuery:
         if i not in parse:
-            return jsonify({"message": i + " 不能为空"}, 400)
+            return jsonify({"message": i + " 不能为空"}), 400
 
     # 唯一字段
     uniqueField = ['email']
