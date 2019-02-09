@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, abort, make_response
+from flask import jsonify, request, Blueprint, abort
 from werkzeug.security import generate_password_hash
 from .usersDao import UsersDAO
 
@@ -17,23 +17,19 @@ def register():
     requiredQuery = ['nickname', 'pwd', 'email']
     for i in requiredQuery:
         if i not in parse:
-            return make_response(jsonify({
-                "message": i + " 不能为空"
-            }), 400)
+            return jsonify({"message": i + " 不能为空"}, 400)
 
     # 唯一字段
     uniqueField = ['email']
     for i in uniqueField:
         if db.findOne({i: parse[i]}):
-            return make_response(jsonify({
-                "message": i + " 已经存在"
-            }), 302)
+            return jsonify({"message": i + " 已经存在"}), 302
 
     # 加盐
     parse['pwd'] = generate_password_hash(parse['pwd'])
 
     result = db.insert(parse)
     if result:
-        return {"message": "succeed"}, 201
+        return jsonify({"message": "succeed"}), 201
 
-    return {"message": "未知错误"}, 400
+    return jsonify({"message": "未知错误"}), 400
