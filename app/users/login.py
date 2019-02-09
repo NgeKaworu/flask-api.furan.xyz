@@ -39,18 +39,13 @@ def login():
                   "login_time": login_time, "logout_time": logout_time})
         token = auth.encode_auth_token(
             result['_id']['$oid'], login_time).decode()
-        test = {
-            "message": "succeed",
-            "token": token,
-            "uid": result['_id']['$oid'],
-            "name": result['nickname']
-        }
+
         return jsonify({
             "message": "succeed",
             "token": token,
             "uid": result['_id']['$oid'],
             "name": result['nickname']
-        }), 201
+        })
 
     return jsonify({"message": "用户名或密码不匹配"}), 400
 
