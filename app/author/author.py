@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint
 from flask_restful import Resource, Api
 
 from ..db.dao import DAO
@@ -12,7 +12,7 @@ class AuthorCount(Resource):
         self.db = DAO('quotes', 'author')
 
     def get(self):
-        return jsonify(self.db.get())
+        return self.db.get()
 
 
 class AuthorAbout(Resource):
@@ -21,7 +21,7 @@ class AuthorAbout(Resource):
 
     def get(self, author):
         query = {'author': author}
-        return jsonify(self.db.get_one(query))
+        return self.db.get_one(query)
 
 
 api_author.add_resource(AuthorCount, '/', endpoint='authorcount')

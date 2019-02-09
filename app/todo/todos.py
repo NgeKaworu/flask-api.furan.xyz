@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify, abort
+from flask import request, Blueprint,   abort
 from flask_restful import Api, Resource, reqparse, fields, marshal_with, marshal
 
 bp = Blueprint('todos', __name__, url_prefix='/todo/v1/tasks')
@@ -39,7 +39,7 @@ class Todos(Resource):
 
     @marshal_with(task_fields)
     def get(self):
-        return jsonify(tasks)
+        return tasks
 
     @marshal_with(task_fields)
     def post(self):
@@ -50,7 +50,7 @@ class Todos(Resource):
             if v != None:
                 task[k] = v
         tasks.append(task)
-        return jsonify(task), 201
+        return task, 201
 
 
 class Todo(Resource):
@@ -66,7 +66,7 @@ class Todo(Resource):
         if len(task) == 0:
             abort(404)
         task = task[0]
-        return jsonify(task)
+        return task
 
     @marshal_with(task_fields)
     def put(self, id):
@@ -78,7 +78,7 @@ class Todo(Resource):
         for k, v in args.items():
             if v != None:
                 task[k] = v
-        return jsonify(task)
+        return task
 
     def delete(self, id):
         task = list(filter(lambda x: x['id'] == id, tasks))
@@ -86,7 +86,7 @@ class Todo(Resource):
             abort(404)
         task = task[0]
         tasks.remove(task)
-        return jsonify({'result': True})
+        return {'result': True}
 
 
 api_todos.add_resource(Todos, '/', endpoint='todos')

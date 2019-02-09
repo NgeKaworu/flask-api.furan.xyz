@@ -1,4 +1,4 @@
-from flask import jsonify, request, Blueprint, abort
+from flask import request, Blueprint, abort, jsonify
 from werkzeug.security import generate_password_hash
 from .usersDao import UsersDAO
 

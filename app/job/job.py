@@ -1,4 +1,4 @@
-from flask import request, Blueprint, jsonify
+from flask import request, Blueprint
 from flask_restful import Resource, Api
 
 from ..db.dao import DAO
@@ -12,7 +12,7 @@ class JobCloud(Resource):
         self.db = DAO('jobSearch', 'cloud')
 
     def get(self):
-        return jsonify(self.db.get())
+        return self.db.get()
 
 
 class JobDetail(Resource):
@@ -20,7 +20,7 @@ class JobDetail(Resource):
         self.db = DAO('jobSearch', 'detail')
 
     def get(self):
-        return jsonify(self.db.get())
+        return self.db.get()
 
 
 api_job.add_resource(JobCloud, '/cloud', endpoint='cloud')

@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 from functools import wraps
-from flask import jsonify, current_app, request, g
+from flask import current_app, request, g
 from bson.objectid import ObjectId
 from app.users.usersDao import UsersDAO
 from .policy import Policy
@@ -72,14 +72,13 @@ class Auth():
                     return func(*args, **kwargs)
 
                 token = request.headers.get('Authorization')
-
                 if not token:
-                    return jsonify({"message": "需要登录"}), 401
+                    return {"message": "需要登录"}, 401
 
                 token_info = self.decode_auth_token(token)
 
                 if isinstance(token_info, str):
-                    return jsonify({"message": token_info}), 401
+                    return {"message": token_info}, 401
 
                 g.token_info = token_info
                 db = UsersDAO()
@@ -91,7 +90,7 @@ class Auth():
                         return func(*args, **kwargs)
 
                     if Policy[blueprint][method] == 'admin':
-                        return jsonify({"message": "只有管理员可以使用"}), 401
+                        return {"message": "只有管理员可以使用"}, 401
 
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
@@ -103,11 +102,11 @@ class Auth():
                         if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
 
-                        return jsonify({"message": "权限不足"}), 401
-                        
+                        return {"message": "权限不足"}, 401
+
                     return func(*args, **kwargs)
                 else:
-                    return jsonify({"message": "登陆超时, 请重新登陆"}), 401
-                    
+                    return {"message": "登陆超时, 请重新登陆"}, 401
+
             return decorator
         return wrapper
