@@ -26,7 +26,7 @@ class Articles(Resource):
 
     def get(self, page=1):
         result, count = self.db.find(limit=10, page=page-1, projection={
-            'title': 1, '_id': 1, 'content': 1, 'owner': 1})
+            'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('_id', -1)])
         if result:
             # 过滤 以及截取内容
             reps = {'list': [{**i, '_id': i['_id']['$oid'],

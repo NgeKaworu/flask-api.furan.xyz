@@ -13,9 +13,10 @@ class MongoDAO():
     def __del__(self):
         self.mongoClient.close()
 
-    def find(self, limit=0, page=0, projection=None, with_count=False):
+    def find(self, limit=0, page=0, projection=None, sort='_id'):
         skip = page * limit
-        cursor = self.mongoCol.find({}, projection).skip(skip).limit(limit)
+        cursor = self.mongoCol.find({}, projection).skip(
+            skip).limit(limit).sort(sort)
         count = cursor.count()
         result = [i for i in cursor]
         # 解析成 json bson => string => json

@@ -23,7 +23,7 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=2),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'sys',
                 'data': {
