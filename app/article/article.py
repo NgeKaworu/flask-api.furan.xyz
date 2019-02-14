@@ -72,8 +72,9 @@ class Article(Resource):
         self.reqparse.add_argument(
             'content', type=str, required=True, help="is required", location='json')
         self.reqparse.add_argument(
-            'fileList', type=list, help="is required", location='json')
-
+            'fileList', type=list, location='json')
+        self.reqparse.add_argument(
+            'tags', type=list, location='json')
         query = {'_id': ObjectId(article_id)}
         update = {**self.reqparse.parse_args(), 'last_update_date': time.time()}
         result = self.db.update(query, update)
