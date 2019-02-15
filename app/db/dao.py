@@ -38,6 +38,12 @@ class MongoDAO():
         result = self.mongoCol.insert(query)
         return json.loads(dumps(result)) if result else result
 
+    def aggregate(self, pipeline=[]):
+        cursor = self.mongoCol.aggregate(pipeline)
+        result = [i for i in cursor]
+        # 解析成 json bson => string => json
+        return json.loads(dumps(result)), count if result else result
+
 
 class RedisDAO():
     def __init__(self, collection):
