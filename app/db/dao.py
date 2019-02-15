@@ -42,7 +42,7 @@ class MongoDAO():
         cursor = self.mongoCol.aggregate(pipeline)
         result = [i for i in cursor]
         # 解析成 json bson => string => json
-        return json.loads(dumps(result)), count if result else result
+        return json.loads(dumps(result)) if result else result
 
 
 class RedisDAO():
