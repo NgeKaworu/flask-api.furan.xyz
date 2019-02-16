@@ -25,7 +25,7 @@ def Archive(page=1):
     ]
     result = db.aggregate(pipline)
     if result:
-        return jsonify({'message': 'OK', 'resutl': result}), 200
+        return jsonify(result)
     abort(404)
 
 
@@ -36,9 +36,10 @@ def logout(tag, page=1):
     query = {'tags': tag}
     result, count = db.find(query=query, limit=10, page=page-1, projection={
         'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('_id', -1)])
+    print(result, count)
     if result:
         # 过滤 以及截取内容
         reps = {'list': [{**i, '_id': i['_id']['$oid'],
                           'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result], 'total': count}
-        return reps
+        return jsonify(reps)
     abort(404)
