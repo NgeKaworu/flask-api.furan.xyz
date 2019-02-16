@@ -34,17 +34,18 @@ def login():
     # 验证
     if check_password_hash(result['pwd'], parse['pwd']):
         login_time = time.time()
-        logout_time = time.time() + 7200
+        logout_time = time.time() + 60 * 60 * 24 * 3
         db.update({'email': parse['email']}, {
                   "login_time": login_time, "logout_time": logout_time})
         token = auth.encode_auth_token(
             result['_id']['$oid'], login_time).decode()
-
+        print(result)
         return jsonify({
             "message": "succeed",
             "token": token,
             "uid": result['_id']['$oid'],
-            "name": result['nickname']
+            "name": result['nickname'],
+            'token_indate': logout_time,
         })
 
     return jsonify({"message": "用户名或密码不匹配"}), 400

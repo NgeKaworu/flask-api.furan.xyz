@@ -8,6 +8,7 @@ from .users import register
 from .users import login
 from .files import upload
 from .article import article
+from .article import tags
 
 
 def create_app():
@@ -23,5 +24,6 @@ def create_app():
     app.register_blueprint(login.bp)
     app.register_blueprint(upload.bp)
     app.register_blueprint(article.bp)
+    app.register_blueprint(tags.bp)
 
     return app
