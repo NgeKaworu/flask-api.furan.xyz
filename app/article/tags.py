@@ -36,7 +36,6 @@ def logout(tag, page=1):
     query = {'tags': tag}
     result, count = db.find(query=query, limit=10, page=page-1, projection={
         'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('_id', -1)])
-    print(result, count)
     if result:
         # 过滤 以及截取内容
         reps = {'list': [{**i, '_id': i['_id']['$oid'],
