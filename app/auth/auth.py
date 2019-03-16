@@ -14,7 +14,7 @@ class Auth():
         self.app = app
 
     @staticmethod
-    def encode_auth_token(user_id, login_time):
+    def encode_auth_token(user_id, user_nickname, login_time):
         """
         生成认证Token
         :param user_id: int
@@ -23,12 +23,16 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15),
+                # 真实环境
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=36),
+                # 测试
+                # 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=3),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'sys',
                 'data': {
                     'id': user_id,
-                    'login_time': login_time
+                    'name': user_nickname,
+                    'login_time': login_time,
                 }
             }
             return jwt.encode(

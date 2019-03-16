@@ -1,4 +1,4 @@
-from flask import request, Blueprint, abort, current_app, jsonify
+from flask import request, Blueprint, abort, current_app, jsonify, g
 from werkzeug.security import check_password_hash
 from .usersDao import UsersDAO
 import json
@@ -38,8 +38,7 @@ def login():
         db.update({'email': parse['email']}, {
                   "login_time": login_time, "logout_time": logout_time})
         token = auth.encode_auth_token(
-            result['_id']['$oid'], login_time).decode()
-        print(result)
+            result['_id']['$oid'], result['nickname'], login_time).decode()
         return jsonify({
             "message": "succeed",
             "token": token,
@@ -62,3 +61,21 @@ def logout(uid):
     logout_time = time.time()
     db.update({'_id': ObjectId(uid)}, {"logout_time": logout_time})
     return jsonify({'message': 'succeed'}), 200
+
+
+@bp.route('/checkToken', methods=['GET'])
+@auth.identify(resource=UsersDAO)
+def checkToken():
+    """
+    token验证
+    :return: json
+    """
+    print(g.token_info)
+    token_info = g.token_info
+    user_data = token_info['data']
+
+    name, uid, = user_data['name'], user_data['id']
+
+    print(name, uid)
+
+    return jsonify({'message': 'succeed', "uid": uid, "name": name}), 200
