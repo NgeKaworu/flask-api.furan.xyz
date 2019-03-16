@@ -70,12 +70,9 @@ def checkToken():
     token验证
     :return: json
     """
-    print(g.token_info)
     token_info = g.token_info
     user_data = token_info['data']
 
     name, uid, = user_data['name'], user_data['id']
-
-    print(name, uid)
 
     return jsonify({'message': 'succeed', "uid": uid, "name": name}), 200
