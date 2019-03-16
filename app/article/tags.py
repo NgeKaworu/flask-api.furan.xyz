@@ -26,7 +26,7 @@ def Archive(page=1):
     result = db.aggregate(pipline)
     if result:
         return jsonify(result)
-    abort(404)
+    return jsonify({"message": '没有找到'}), 404
 
 
 @bp.route('/<string:tag>', methods=['GET'],  strict_slashes=False)
@@ -41,4 +41,4 @@ def logout(tag, page=1):
         reps = {'list': [{**i, '_id': i['_id']['$oid'],
                           'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result], 'total': count}
         return jsonify(reps)
-    abort(404)
+    return jsonify({"message": '没有找到'}), 404
