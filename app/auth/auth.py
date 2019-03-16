@@ -23,7 +23,7 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(milliseconds=5),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'sys',
                 'data': {
@@ -57,7 +57,7 @@ class Auth():
             else:
                 raise jwt.InvalidTokenError
         except jwt.ExpiredSignatureError:
-            return 'Token过期'
+            return '登陆超时, 请重新登陆'
         except jwt.InvalidTokenError:
             return '无效Token'
 
@@ -78,7 +78,7 @@ class Auth():
                 token_info = self.decode_auth_token(token)
 
                 if isinstance(token_info, str):
-                    return {"message": token_info}, 401
+                    return {"message": token_info}, 403
 
                 g.token_info = token_info
                 db = UsersDAO()
@@ -106,7 +106,7 @@ class Auth():
 
                     return func(*args, **kwargs)
                 else:
-                    return {"message": "登陆超时, 请重新登陆"}, 401
+                    return {"message": "登陆超时, 请重新登陆"}, 403
 
             return decorator
         return wrapper
