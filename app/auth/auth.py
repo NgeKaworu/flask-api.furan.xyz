@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 from functools import wraps
-from flask import current_app, request, g
+from flask import current_app, request, g, jsonify, make_response
 from bson.objectid import ObjectId
 from app.users.usersDao import UsersDAO
 from .policy import Policy
@@ -14,7 +14,7 @@ class Auth():
         self.app = app
 
     @staticmethod
-    def encode_auth_token(user_id, login_time):
+    def encode_auth_token(user_id, user_nickname, login_time):
         """
         生成认证Token
         :param user_id: int
@@ -23,12 +23,16 @@ class Auth():
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3),
+                # 真实环境
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=36),
+                # 测试
+                # 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=3),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'sys',
                 'data': {
                     'id': user_id,
-                    'login_time': login_time
+                    'name': user_nickname,
+                    'login_time': login_time,
                 }
             }
             return jwt.encode(
@@ -57,7 +61,7 @@ class Auth():
             else:
                 raise jwt.InvalidTokenError
         except jwt.ExpiredSignatureError:
-            return 'Token过期'
+            return '登陆超时, 请重新登陆'
         except jwt.InvalidTokenError:
             return '无效Token'
 
@@ -73,14 +77,15 @@ class Auth():
 
                 token = request.headers.get('Authorization')
                 if not token:
-                    return {"message": "需要登录"}, 401
+                    return make_response(jsonify({"message": "需要登录"}), 401)
 
                 token_info = self.decode_auth_token(token)
 
                 if isinstance(token_info, str):
-                    return {"message": token_info}, 401
+                    return make_response(jsonify({"message": token_info}), 403)
 
                 g.token_info = token_info
+
                 db = UsersDAO()
                 user_info = db.findOne(
                     {"_id": ObjectId(token_info["data"]['id'])}
@@ -90,7 +95,7 @@ class Auth():
                         return func(*args, **kwargs)
 
                     if Policy[blueprint][method] == 'admin':
-                        return {"message": "只有管理员可以使用"}, 401
+                        return make_response(jsonify({"message": "只有管理员可以使用"}), 401)
 
                     if Policy[blueprint][method] == 'owner':
                         if 'uid' in kwargs and kwargs['uid'] == user_info['_id']['$oid']:
@@ -102,11 +107,11 @@ class Auth():
                         if resource_info and 'owner' in resource_info and resource_info['owner'] == user_info['_id']['$oid']:
                             return func(*args, **kwargs)
 
-                        return {"message": "权限不足"}, 401
+                        return make_response(jsonify({"message": "权限不足"}), 401)
 
                     return func(*args, **kwargs)
                 else:
-                    return {"message": "登陆超时, 请重新登陆"}, 401
+                    return make_response(jsonify({"message": "登陆超时, 请重新登陆"}), 403)
 
             return decorator
         return wrapper
