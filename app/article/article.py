@@ -26,7 +26,7 @@ class Articles(Resource):
 
     def get(self, page=1):
         result, count = self.db.find(limit=10, page=page-1, projection={
-            'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('_id', -1)])
+            'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('last_update_date', -1)])
         if result:
             # 过滤 以及截取内容
             reps = {'list': [{**i, '_id': i['_id']['$oid'],
@@ -38,7 +38,7 @@ class Articles(Resource):
         db = ArticleDAO()
         owner = g.token_info['data']['id']
         result = db.insert({**self.reqparse.parse_args(),
-                            "owner": owner, 'create_date': time.time()})
+                            "owner": owner, 'create_date': time.time(), 'last_update_date': time.time()})
         if result:
             repson = {'article_id': result['$oid']}
             return repson, 201
