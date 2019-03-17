@@ -35,7 +35,7 @@ def logout(tag, page=1):
     db = ArticleDAO()
     query = {'tags': tag}
     result, count = db.find(query=query, limit=10, page=page-1, projection={
-        'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('last_update_date', -1)])
+        'title': 1, '_id': 1, 'content': 1, 'owner': 1, 'tags': 1}, sort=[('last_update_date', -1)])
     if result:
         # 过滤 以及截取内容
         reps = {'list': [{**i, '_id': i['_id']['$oid'],
