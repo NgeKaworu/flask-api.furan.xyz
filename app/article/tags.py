@@ -26,7 +26,7 @@ def Archive(page=1):
     result = db.aggregate(pipline)
     if result:
         return jsonify(result)
-    abort(404)
+    return jsonify({"message": '没有找到'}), 404
 
 
 @bp.route('/<string:tag>', methods=['GET'],  strict_slashes=False)
@@ -35,10 +35,10 @@ def logout(tag, page=1):
     db = ArticleDAO()
     query = {'tags': tag}
     result, count = db.find(query=query, limit=10, page=page-1, projection={
-        'title': 1, '_id': 1, 'content': 1, 'owner': 1}, sort=[('_id', -1)])
+        'title': 1, '_id': 1, 'content': 1, 'owner': 1, 'tags': 1}, sort=[('last_update_date', -1)])
     if result:
         # 过滤 以及截取内容
         reps = {'list': [{**i, '_id': i['_id']['$oid'],
                           'content': '\n'.join(i['content'].split('\n', 5)[:5])} for i in result], 'total': count}
         return jsonify(reps)
-    abort(404)
+    return jsonify({"message": '没有找到'}), 404
