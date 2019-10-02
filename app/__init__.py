@@ -1,14 +1,12 @@
 from flask import Flask
 
-from .job import job
+from .job import job, feWordClound
 from .author import author
 from .todo import todos
-from .users import users
-from .users import register
-from .users import login
+from .users import users, login, register
+
 from .files import upload
-from .article import article
-from .article import tags
+from .article import article, tags
 
 
 def create_app():
@@ -18,6 +16,7 @@ def create_app():
     # 注册页面
     app.register_blueprint(author.bp)
     app.register_blueprint(job.bp)
+    app.register_blueprint(feWordClound.bp)
     app.register_blueprint(todos.bp)
     app.register_blueprint(users.bp)
     app.register_blueprint(register.bp)
