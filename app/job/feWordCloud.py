@@ -3,11 +3,11 @@ from flask_restful import Resource, Api, reqparse
 
 from app.db.dao import MongoDAO
 
-bp = Blueprint('feWordClound', __name__, url_prefix='/feWordClound/v1')
+bp = Blueprint('feWordCloud', __name__, url_prefix='/feWordCloud/v1')
 api_job = Api(bp)
 
 
-class FeWordClound(Resource):
+class FeWordCloud(Resource):
     def __init__(self):
         self.db = MongoDAO('jobSearch', 'frontdetail')
         self.reqparse = reqparse.RequestParser()
@@ -16,18 +16,19 @@ class FeWordClound(Resource):
 
     def get(self):
         query = self.reqparse.parse_args()
-        print(query)
         return self.db.findOne(query, projection={'_id': 0}), 200
 
 
-class FeWordCloundDate(Resource):
+class FeWordCloudDate(Resource):
     def __init__(self):
         self.db = MongoDAO('jobSearch', 'frontdetail')
 
     def get(self):
-        return self.db.find(projection={"createTime": 1, "_id": 0}), 200
+        info = self.db.find(projection={"createTime": 1, "_id": 0})
+        print(info)
+        return info[0], 200
 
 
-api_job.add_resource(FeWordClound, '/',
-                     endpoint='feWordClound')
-api_job.add_resource(FeWordCloundDate, '/date', endpoint='feWordCloundDate')
+api_job.add_resource(FeWordCloud, '/',
+                     endpoint='feWordCloud')
+api_job.add_resource(FeWordCloudDate, '/date', endpoint='feWordCloudDate')
