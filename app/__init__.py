@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .job import job, feWordCloud
+from .job import job, feWordCloud, frontend
 from .author import author
 from .todo import todos
 from .users import users, login, register
@@ -24,5 +24,6 @@ def create_app():
     app.register_blueprint(upload.bp)
     app.register_blueprint(article.bp)
     app.register_blueprint(tags.bp)
+    app.register_blueprint(frontend.bp)
 
     return app

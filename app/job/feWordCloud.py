@@ -25,7 +25,6 @@ class FeWordCloudDate(Resource):
 
     def get(self):
         info = self.db.find(projection={"createTime": 1, "_id": 0})
-        print(info)
         return info[0], 200
 
 
