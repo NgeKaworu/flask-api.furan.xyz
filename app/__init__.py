@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 
 from .job import job, feWordCloud, frontend
 from .author import author
@@ -7,10 +8,12 @@ from .users import users, login, register
 
 from .files import upload
 from .article import article, tags
+from .mock import mock
 
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app, supports_credentials=True)
     app.config.from_pyfile('configs.py')
 
     # 注册页面
@@ -25,5 +28,6 @@ def create_app():
     app.register_blueprint(article.bp)
     app.register_blueprint(tags.bp)
     app.register_blueprint(frontend.bp)
+    app.register_blueprint(mock.bp)
 
     return app
